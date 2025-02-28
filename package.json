@@ -1,0 +1,30 @@
+{
+  "name": "retriont",
+  "version": "0.0.1",
+  "description": "Example package",
+  "keywords": [],
+  "license": "MIT",
+  "type": "module",
+  "main": "./index.js",
+  "types": "./index.d.ts",
+  "scripts": {
+    "task": "bun scripts/task.ts",
+    "build:test": "bun task build && bun test",
+    "build:publish": "bun task build && bun task report-size && bun task publish",
+    "lint": "eslint ./src",
+    "lint:fix": "eslint ./src --fix"
+  },
+  "devDependencies": {
+    "@stylistic/eslint-plugin": "latest",
+    "@types/bun": "latest",
+    "eslint": "latest",
+    "eslint-plugin-jsdoc": "latest",
+    "mitata": "latest",
+    "typescript": "latest",
+    "tsx": "latest",
+    "typescript-eslint": "latest",
+    "uglify-js": "latest",
+    "@types/uglify-js": "latest"
+  },
+  "dependencies": {}
+}
