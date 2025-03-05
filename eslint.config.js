@@ -138,7 +138,6 @@ export default tsEslint.config({
     "@typescript-eslint/consistent-type-imports": "warn",
     "@typescript-eslint/default-param-last": "error",
     "@typescript-eslint/dot-notation": "warn",
-    "@typescript-eslint/explicit-member-accessibility": "warn",
     "@typescript-eslint/method-signature-style": "warn",
     "@typescript-eslint/no-array-constructor": "warn",
     "@typescript-eslint/no-base-to-string": "error",
@@ -191,7 +190,6 @@ export default tsEslint.config({
     "@typescript-eslint/prefer-return-this-type": "warn",
     "@typescript-eslint/prefer-string-starts-ends-with": "warn",
     "@typescript-eslint/prefer-ts-expect-error": "warn",
-    "@typescript-eslint/promise-function-async": "warn",
     "@typescript-eslint/require-await": "error",
     "@typescript-eslint/restrict-plus-operands": "error",
     "@typescript-eslint/restrict-template-expressions": "error",
@@ -203,87 +201,6 @@ export default tsEslint.config({
       "error",
       {
         allowExpressions: true,
-      },
-    ],
-    "@typescript-eslint/naming-convention": [
-      "error",
-      {
-        selector: "variable",
-        format: ["camelCase", "UPPER_CASE"],
-      },
-      {
-        selector: "function",
-        format: ["camelCase"],
-      },
-      {
-        selector: "parameter",
-        format: ["camelCase", "UPPER_CASE"],
-        leadingUnderscore: "allow",
-        trailingUnderscore: "allow",
-      },
-      {
-        selector: "classProperty",
-        format: ["camelCase"],
-        leadingUnderscore: "allow",
-        trailingUnderscore: "allow",
-      },
-      {
-        selector: "objectLiteralProperty",
-        format: ["camelCase"],
-      },
-      {
-        selector: "typeProperty",
-        format: ["camelCase"],
-      },
-      {
-        selector: "classMethod",
-        format: ["camelCase"],
-      },
-      {
-        selector: "objectLiteralMethod",
-        format: ["camelCase"],
-      },
-      {
-        selector: "typeMethod",
-        format: ["camelCase"],
-      },
-      {
-        selector: "accessor",
-        format: ["camelCase"],
-      },
-      {
-        selector: "enumMember",
-        format: ["UPPER_CASE"],
-      },
-      {
-        selector: "class",
-        format: ["PascalCase"],
-      },
-      {
-        selector: "interface",
-        format: ["PascalCase"],
-      },
-      {
-        selector: "typeAlias",
-        format: ["camelCase", "PascalCase"],
-      },
-      {
-        selector: "enum",
-        format: ["PascalCase"],
-      },
-      {
-        selector: "typeParameter",
-        format: ["camelCase", "PascalCase"],
-      },
-    ],
-    "@typescript-eslint/no-empty-function": [
-      "error",
-      {
-        allow: [
-          "private-constructors",
-          "protected-constructors",
-          "decoratedFunctions",
-        ],
       },
     ],
     "@typescript-eslint/no-empty-interface": [

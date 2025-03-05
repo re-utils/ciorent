@@ -1,7 +1,7 @@
 {
-  "name": "retriont",
+  "name": "ciorent",
   "version": "0.0.1",
-  "description": "Example package",
+  "description": "A concurrency library",
   "keywords": [],
   "license": "MIT",
   "type": "module",
@@ -17,14 +17,13 @@
   "devDependencies": {
     "@stylistic/eslint-plugin": "latest",
     "@types/bun": "latest",
+    "@types/uglify-js": "latest",
     "eslint": "latest",
     "eslint-plugin-jsdoc": "latest",
     "mitata": "latest",
-    "typescript": "latest",
     "tsx": "latest",
+    "typescript": "latest",
     "typescript-eslint": "latest",
-    "uglify-js": "latest",
-    "@types/uglify-js": "latest"
-  },
-  "dependencies": {}
+    "uglify-js": "latest"
+  }
 }
