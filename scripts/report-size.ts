@@ -1,4 +1,4 @@
-import { minify } from 'uglify-js';
+import { minify_sync } from 'terser';
 
 const DIR = import.meta.dir + '/../lib/';
 
@@ -22,7 +22,7 @@ for await (const path of new Bun.Glob('**/*.js').scan(DIR)) {
   if (!stat.isFile()) continue;
 
   const code = await file.text();
-  const minfiedCode = minify(code).code;
+  const minfiedCode = minify_sync(code).code!;
 
   sizes.push({
     entry: path,

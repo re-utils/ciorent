@@ -21,9 +21,9 @@
     "eslint": "latest",
     "eslint-plugin-jsdoc": "latest",
     "mitata": "latest",
+    "terser": "^5.39.0",
     "tsx": "latest",
     "typescript": "latest",
-    "typescript-eslint": "latest",
-    "uglify-js": "latest"
+    "typescript-eslint": "latest"
   }
 }
