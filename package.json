@@ -1,6 +1,6 @@
 {
   "name": "ciorent",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A concurrency library",
   "keywords": [],
   "license": "MIT",
@@ -12,7 +12,8 @@
     "build:test": "bun task build && bun test",
     "build:publish": "bun task build && bun task report-size && bun task publish",
     "lint": "eslint ./src",
-    "lint:fix": "eslint ./src --fix"
+    "lint:fix": "eslint ./src --fix",
+    "docs": "typedoc ./src/** --entryPointStrategy Expand --plugin typedoc-material-theme --skipErrorChecking"
   },
   "devDependencies": {
     "@stylistic/eslint-plugin": "latest",
@@ -23,6 +24,8 @@
     "mitata": "latest",
     "terser": "^5.39.0",
     "tsx": "latest",
+    "typedoc": "^0.27.9",
+    "typedoc-material-theme": "^1.3.0",
     "typescript": "latest",
     "typescript-eslint": "latest"
   }

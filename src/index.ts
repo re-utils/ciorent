@@ -1,6 +1,6 @@
 /**
  * @module
- * Utilities for concurrency
+ * Other utilities
  */
 
 /**

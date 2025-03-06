@@ -1,6 +1,6 @@
 /**
  * @module
- * Go-like channels
+ * Channels
  */
 
 type QueueNode<T> = [T, QueueNode<T> | null];

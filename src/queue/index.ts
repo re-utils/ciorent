@@ -1,4 +1,9 @@
 /**
+ * @module
+ * Queue utilities
+ */
+
+/**
  * Describe a fixed-sized queue
  */
 export interface FixedQueue<T extends {}> {
