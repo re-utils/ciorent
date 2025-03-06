@@ -27,7 +27,7 @@ export interface Semaphore {
 }
 
 /**
- * Create a semaphore that allows n access
+ * Create a semaphore that allows n accesses
  */
 export const init = (n: number): Semaphore => {
   const root: QueueNode<() => void> = [null!, null];

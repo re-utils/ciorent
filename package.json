@@ -14,8 +14,8 @@
   "types": "./index.d.ts",
   "scripts": {
     "task": "bun scripts/task.ts",
-    "build:test": "bun task build && bun test",
-    "build:publish": "bun task build && bun task report-size && bun task publish",
+    "build:test": "bun docs && bun task build && bun test",
+    "build:publish": "bun build:test && bun task report-size && bun task publish",
     "lint": "eslint ./src",
     "lint:fix": "eslint ./src --fix",
     "docs": "typedoc ./src/** --entryPointStrategy Expand --plugin typedoc-material-theme --skipErrorChecking"
