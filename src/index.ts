@@ -28,7 +28,7 @@ export const sleep: (ms: number) => Promise<void> = globalThis.Bun?.sleep
  * @param n
  * @param task - The function to run
  * @param args - The arguments to pass in the function
- * @returns
+ * @returns The promise array
  */
 export const spawn = <
   Args extends any[],
