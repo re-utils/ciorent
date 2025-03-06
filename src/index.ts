@@ -22,3 +22,20 @@ export const sleep: (ms: number) => Promise<void> = globalThis.Bun?.sleep
   ?? globalThis.process?.getBuiltinModule?.('timers/promises').setTimeout
   // eslint-disable-next-line
   ?? ((ms) => new Promise((res) => { setTimeout(res, ms); }));
+
+/**
+ * Spawn n tasks
+ * @param n
+ * @param task - The function to run
+ * @param args - The arguments to pass in the function
+ * @returns
+ */
+export const spawn = <
+  Args extends any[],
+  R extends Promise<any>
+>(n: number, task: (...args: Args) => R, ...args: Args): R[] => {
+  const a = new Array(n);
+  while (n-- !== 0)
+    a[n] = task(...args);
+  return a;
+};

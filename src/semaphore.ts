@@ -67,8 +67,11 @@ export const signal = (s: Semaphore): void => {
 export const task = <
   F extends (...args: any[]) => Promise<any>
 >(s: Semaphore, f: F): F => (async (...a) => {
-  await pause(s);
-  const r = await f(...a);
-  signal(s);
-  return r;
+  try {
+    await pause(s);
+    // eslint-disable-next-line
+    return f(...a);
+  } finally {
+    signal(s);
+  }
 }) as F;
