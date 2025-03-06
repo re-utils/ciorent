@@ -3,7 +3,7 @@
  * Channels
  */
 
-type QueueNode<T> = [T, QueueNode<T> | null];
+import type { QueueNode } from './queue';
 
 /**
  * Describe a channel

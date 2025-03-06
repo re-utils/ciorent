@@ -1,4 +1,5 @@
 /**
+ * @private
  * @module
  * Queue utilities
  */
@@ -27,6 +28,14 @@ export interface FixedQueue<T extends {}> {
    */
   3: number;
 }
+
+/**
+ * Describe a queue node (singly linked list node)
+ */
+export type QueueNode<T> = [
+  value: T,
+  next: QueueNode<T> | null
+];
 
 /**
  * Create a fixed queue.

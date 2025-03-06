@@ -77,7 +77,7 @@ console.log('Starting...');
 ```
 
 ## Latch
-Latch is a synchronization tool that works like a gate, pausing tasks until the latch is opened.
+A latch is a synchronization tool that allows one or more threads to wait until a specific condition is met.
 
 ```ts
 import * as latch from 'ciorent/latch';
@@ -150,4 +150,31 @@ const main = async () => {
 
 // Run fetch after 500ms
 await main();
+```
+
+## Semaphore
+A semaphore is a synchronization tool to control access to shared resources.
+
+It's essentially a counter that regulates how many threads or processes can access a particular resource or section of code.
+
+```ts
+import * as semaphore from 'ciorent/semaphore';
+import * as cio from 'ciorent';
+
+// Only allow 2 of these tasks to run concurrently
+const task = semaphore.task(
+  semaphore.init(2),
+  async (task: number) => {
+    for (let i = 1; i <= 5; i++) {
+      await cio.pause;
+      console.log('Task', task, 'iteration', i);
+    }
+
+    await cio.sleep(500);
+    console.log('Task', task, 'end');
+  }
+);
+
+// Try to run 5 tasks concurrently
+for (let i = 1; i <= 5; i++) task(i);
 ```
