@@ -16,12 +16,15 @@ const run = async () => {
 };
 
 const log = async () => {
-  do {
+  while (true) {
     // Non-blocking
     const x = await channel.recieve(c);
-    if (x === channel.closed) break;
+
+    // If the channel has been closed
+    if (x === null) break;
+
     console.log('Recieved', x);
-  } while (true);
+  };
 }
 
 run();
