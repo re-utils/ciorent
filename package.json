@@ -1,7 +1,12 @@
 {
   "name": "ciorent",
-  "version": "0.0.4",
-  "description": "A concurrency library",
+  "version": "0.0.5",
+  "description": "A low-overhead, lightweight concurrency library",
+  "homepage": "https://ciorent.netlify.app",
+  "repository": {
+    "type": "github",
+    "url": "https://github.com/re-utils/ciorent"
+  },
   "keywords": [],
   "license": "MIT",
   "type": "module",

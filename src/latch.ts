@@ -1,17 +1,17 @@
-import { pause as endPromise } from '.';
-
 /**
  * @module
  * Latches
  */
 
+import { pause as endPromise } from '.';
+
 /**
  * Describe a latch
  */
-export interface Latch {
-  0: Promise<void>;
-  1: () => void;
-}
+export type Latch = [
+  pause: Promise<void>,
+  open: () => void
+];
 
 /**
  * Create a latch
