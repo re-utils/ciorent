@@ -5,8 +5,6 @@ import { resolve, join } from 'node:path/posix';
 import { transpileDeclaration } from 'typescript';
 import tsconfig from '../tsconfig.json';
 
-Bun.$`bun docs`.nothrow();
-
 // Constants
 const ROOTDIR = resolve(import.meta.dir, '..');
 const SOURCEDIR = `${ROOTDIR}/src`;

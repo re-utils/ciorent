@@ -1,7 +1,6 @@
-# Ciorent
 A low-overhead, cross-runtime concurrency library.
 
-## Example usage
+# Usage
 Pausing to prioritize an asynchronous task:
 ```ts
 import * as cio from 'ciorent';
@@ -77,11 +76,54 @@ log();
 console.log('Starting...');
 ```
 
-Latches:
-```ts
-import latch from 'ciorent/latch';
+## Latch
+Latch is a synchronization tool that works like a gate, pausing tasks until the latch is opened.
 
-const [startFetch, pauseFetch] = latch();
+```ts
+import * as latch from 'ciorent/latch';
+import * as cio from 'ciorent';
+
+const fetchLatch = latch.init();
+
+const task = async () => {
+  // Blocks until the latch is open
+  await latch.pause(fetchLatch);
+
+  const res = await fetch('http://example.com');
+  console.log('Fetch status:', res.status);
+}
+
+const prepare = () => {
+  console.log('Run before fetch:', performance.now().toFixed(2));
+
+  // Unblock the latch
+  latch.open(fetchLatch);
+}
+
+const main = async () => {
+  const p = task();
+  await cio.sleep(500);
+  prepare();
+
+  return p;
+}
+
+// Run fetch after 500ms
+await main();
+
+// Re-close the latch
+latch.close(fetchLatch);
+
+// Run fetch after another 500ms
+await main();
+```
+
+If you don't need to close the latch again:
+```ts
+import * as latch from 'ciorent/latch';
+import * as cio from 'ciorent';
+
+const [pauseFetch, startFetch] = latch.init();
 
 const task = async () => {
   // Blocks until the latch is open
@@ -92,12 +134,20 @@ const task = async () => {
 }
 
 const prepare = () => {
-  console.log('Run before fetch');
+  console.log('Run before fetch:', performance.now().toFixed(2));
 
   // Unblock the latch
   startFetch();
 }
 
-task();
-setTimeout(prepare, 500);
+const main = async () => {
+  const p = task();
+  await cio.sleep(500);
+  prepare();
+
+  return p;
+}
+
+// Run fetch after 500ms
+await main();
 ```
