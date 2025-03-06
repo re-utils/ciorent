@@ -1,5 +1,5 @@
 # Ciorent
-A concurrency library.
+A low-overhead, cross-runtime concurrency library.
 
 ## Example usage
 Pausing to prioritize an asynchronous task:
@@ -10,7 +10,7 @@ import * as cio from 'ciorent';
 const task1 = async () => {
   let x = 0;
   for (let i = 0; i < (Math.random() + 15) * 1e7; i++) {
-    // Frequent pausing
+    // Occasional pausing
     if (i % 2e6 === 0)
       await cio.pause;
 
@@ -29,6 +29,14 @@ const task2 = async () => {
 // Task 2 will not get blocked by task 1
 task1();
 task2();
+```
+
+Sleep for a duration:
+```ts
+import * as cio from 'ciorent';
+
+await cio.sleep(1000);
+console.log('Slept for about 1s');
 ```
 
 Go-like channels for synchronizations:
@@ -51,12 +59,15 @@ const run = async () => {
 };
 
 const log = async () => {
-  do {
+  while (true) {
     // Non-blocking
     const x = await channel.recieve(c);
-    if (x === channel.closed) break;
+
+    // If the channel has been closed
+    if (x === null) break;
+
     console.log('Recieved', x);
-  } while (true);
+  };
 }
 
 run();
@@ -64,4 +75,29 @@ log();
 
 // This runs first
 console.log('Starting...');
+```
+
+Latches:
+```ts
+import latch from 'ciorent/latch';
+
+const [startFetch, pauseFetch] = latch();
+
+const task = async () => {
+  // Blocks until the latch is open
+  await pauseFetch;
+
+  const res = await fetch('http://example.com');
+  console.log('Fetch status:', res.status);
+}
+
+const prepare = () => {
+  console.log('Run before fetch');
+
+  // Unblock the latch
+  startFetch();
+}
+
+task();
+setTimeout(prepare, 500);
 ```
