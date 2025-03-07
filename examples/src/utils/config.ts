@@ -12,7 +12,7 @@ export default config({
       desc: 'A cross-runtime sleep function.'
     },
     concurrent: {
-      heading: 'Concurrency',
+      heading: 'Basic concurrency',
       desc: 'Control how many tasks can be executed concurrently.'
     },
     spawn: {

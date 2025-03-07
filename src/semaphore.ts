@@ -67,8 +67,9 @@ export const signal = (s: Semaphore): void => {
 export const task = <
   F extends (...args: any[]) => Promise<any>
 >(s: Semaphore, f: F): F => (async (...a) => {
+  await pause(s);
+
   try {
-    await pause(s);
     // The signal() call can run first which
     // Can unblock other task while this is still running
     return await f(...a);
