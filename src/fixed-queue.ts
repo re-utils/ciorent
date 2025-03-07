@@ -1,7 +1,6 @@
 /**
  * @private
- * @module
- * Queue utilities
+ * @module Queue utilities
  */
 
 /**

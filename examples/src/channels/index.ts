@@ -20,8 +20,9 @@ const log = async () => {
     // Non-blocking
     const x = await channel.recieve(c);
 
-    // If the channel has been closed
-    if (x === null) break;
+    // 'recieve' returns undefined if
+    // The channel has been closed
+    if (x == null) break;
 
     console.log('Recieved', x);
   };

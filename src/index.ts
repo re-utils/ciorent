@@ -1,6 +1,5 @@
 /**
- * @module
- * Other utilities
+ * @module Other utilities
  */
 
 /**

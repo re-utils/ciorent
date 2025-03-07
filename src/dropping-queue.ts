@@ -1,12 +1,11 @@
 /**
- * @module
- * Dropping queues
+ * @module Dropping queues
  */
 
-import type { FixedQueue } from '.';
+import type { FixedQueue } from './fixed-queue';
 
-export { default as init } from '.';
-export { pop } from './sliding';
+export { default as init } from './fixed-queue';
+export { pop } from './sliding-queue';
 
 /**
  * Push an item to a dropping queue

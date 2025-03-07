@@ -1,11 +1,10 @@
 /**
- * @module
- * Sliding queues
+ * @module Sliding queues
  */
 
-import type { FixedQueue } from '.';
+import type { FixedQueue } from './fixed-queue';
 
-export { default as init } from '.';
+export { default as init } from './fixed-queue';
 
 /**
  * Push an item to a sliding queue

@@ -1,9 +1,9 @@
 /**
- * @module
- * Channels
+ * @module Channels
  */
 
-import type { QueueNode } from './queue';
+import { pause as resolvedPromise } from '.';
+import type { QueueNode } from './fixed-queue';
 
 /**
  * Describe a channel
@@ -27,15 +27,13 @@ export interface Channel<T> {
   /**
    * The head of the Promise resolve queue
    */
-  3: QueueNode<(value: T | null) => void>;
+  3: QueueNode<(value?: T) => void>;
 
   /**
    * The tail of the Promise resolve queue
    */
-  4: QueueNode<(value: T | null) => void>;
+  4: QueueNode<(value?: T) => void>;
 }
-
-const resolvedNull = Promise.resolve(null);
 
 /**
  * Create a channel
@@ -73,7 +71,7 @@ export const send = <T>(c: Channel<T>, t: T): void => {
  * Recieve a message from a channel, return null if the channel is closed
  * @param c
  */
-export const recieve = <T>(c: Channel<T>): Promise<T | null> => c[2][1] !== null
+export const recieve = <T>(c: Channel<T>): Promise<T | undefined> => c[2][1] !== null
   // Get the normal queue value
   ? Promise.resolve((c[2] = c[2][1])[0])
   : c[0]
@@ -81,16 +79,16 @@ export const recieve = <T>(c: Channel<T>): Promise<T | null> => c[2][1] !== null
       // Add new resolve function to queue
       c[3] = c[3][1] = [res, null];
     }) as any
-    : resolvedNull;
+    : resolvedPromise as Promise<undefined>;
 
 /**
  * Recieve a message from a channel, return null if no message is currently in queue
  * @param c
  */
-export const poll = <T>(c: Channel<T>): T | null => c[2][1] !== null
+export const poll = <T>(c: Channel<T>): T | undefined => c[2][1] !== null
   // Get the normal queue value
   ? (c[2] = c[2][1])[0]
-  : null;
+  : undefined;
 
 /**
  * Close a channel
@@ -101,7 +99,7 @@ export const close = <T>(c: Channel<T>): void => {
 
   // Terminate all pending promises
   while (c[4][1] !== null)
-    (c[4] = c[4][1])[0](null);
+    (c[4] = c[4][1])[0]();
 };
 
 /**

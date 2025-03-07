@@ -1,6 +1,5 @@
 /**
- * @module
- * Concurrency controls
+ * @module Concurrency controls
  */
 
 /**

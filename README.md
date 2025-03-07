@@ -1,3 +1,3 @@
-A low-overhead, cross-runtime concurrency library.
+A lightweight, low-overhead concurrency library
 
 # Examples

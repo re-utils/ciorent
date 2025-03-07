@@ -1,6 +1,5 @@
 /**
- * @module
- * Latches
+ * @module Latches
  */
 
 import { pause as endPromise } from '.';
