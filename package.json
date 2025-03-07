@@ -22,7 +22,7 @@
     "build:publish": "bun build:test && bun task report-size && bun task publish",
     "lint": "eslint ./src",
     "lint:fix": "eslint ./src --fix",
-    "docs": "typedoc ./src/** --entryPointStrategy Expand --plugin typedoc-material-theme --skipErrorChecking"
+    "docs": "typedoc ./src/** --entryPointStrategy Expand --plugin typedoc-material-theme --skipErrorChecking --readme ./lib/README.md"
   },
   "devDependencies": {
     "@stylistic/eslint-plugin": "latest",
