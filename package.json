@@ -1,6 +1,6 @@
 {
   "name": "ciorent",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "description": "A lightweight, low-overhead concurrency library",
   "homepage": "https://ciorent.netlify.app",
   "repository": {
@@ -19,7 +19,7 @@
   "types": "./index.d.ts",
   "scripts": {
     "task": "bun scripts/task.ts",
-    "build:test": "bun docs && bun task build && bun test",
+    "build:test": "bun task build && bun docs && bun test",
     "build:publish": "bun build:test && bun task report-size && bun task publish",
     "lint": "eslint ./src",
     "lint:fix": "eslint ./src --fix",
