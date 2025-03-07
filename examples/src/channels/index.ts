@@ -1,11 +1,11 @@
 import * as channel from 'ciorent/channel';
+import * as cio from 'ciorent';
 
 const c = channel.init<number>();
-const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
 const run = async () => {
   for (let i = 0; i < 10; i++) {
-    await sleep(10);
+    await cio.sleep(10);
     channel.send(c, i);
     console.log('Sent', i);
   }
