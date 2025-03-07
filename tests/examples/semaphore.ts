@@ -6,14 +6,20 @@ const task = semaphore.task(
   semaphore.init(2),
   async (task: number) => {
     for (let i = 1; i <= 5; i++) {
-      await cio.pause;
       console.log('Task', task, 'iteration', i);
+      await cio.pause;
     }
 
-    await cio.sleep(500);
     console.log('Task', task, 'end');
   }
 );
 
-// Try to run 5 tasks concurrently
-for (let i = 1; i <= 5; i++) task(i);
+Promise.all([
+  task(1),
+  task(2),
+  task(3),
+  task(4)
+])
+
+// Try to run 6 tasks with 4 task running concurrently
+//cio.concurrent(6, task, 4);

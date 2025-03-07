@@ -38,7 +38,9 @@ export const init = (n: number): Semaphore => {
  * Wait until the semaphore allows access
  */
 export const pause = (s: Semaphore): Promise<void> => {
-  if (s[0] === 0) {
+  s[0]--;
+
+  if (s[0] < 0) {
     // Push to the task queue
     let r;
     const p = new Promise<void>((res) => { r = res; });
@@ -46,7 +48,6 @@ export const pause = (s: Semaphore): Promise<void> => {
     return p;
   }
 
-  s[0]--;
   return resolvedPromise;
 };
 
@@ -54,11 +55,11 @@ export const pause = (s: Semaphore): Promise<void> => {
  * Signal to the semaphore to release access
  */
 export const signal = (s: Semaphore): void => {
-  // No item is in the queue
-  if (s[1] === s[2])
-    s[0]++;
-  else
+  // Unlock for 1 thread
+  if (s[0] < 0)
     (s[2] = s[2][1]!)[0]();
+
+  s[0]++;
 };
 
 /**
@@ -68,6 +69,7 @@ export const task = <
   F extends (...args: any[]) => Promise<any>
 >(s: Semaphore, f: F): F => (async (...a) => {
   try {
+    console.log('Allowed', s[0]);
     await pause(s);
     // eslint-disable-next-line
     return f(...a);

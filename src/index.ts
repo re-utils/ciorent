@@ -24,18 +24,42 @@ export const sleep: (ms: number) => Promise<void> = globalThis.Bun?.sleep
   ?? ((ms) => new Promise((res) => { setTimeout(res, ms); }));
 
 /**
- * Spawn n tasks
+ * Spawn n tasks that runs sequentially
  * @param n
  * @param task - The function to run
- * @param args - The arguments to pass in the function
- * @returns The promise array
  */
-export const spawn = <
-  Args extends any[],
-  R extends Promise<any>
->(n: number, task: (...args: Args) => R, ...args: Args): R[] => {
-  const a = new Array(n);
-  while (n-- !== 0)
-    a[n] = task(...args);
-  return a;
+export const sequential = async (n: number, task: (id: number) => Promise<any>): Promise<void> => {
+  for (let i = 1; i <= n; i++) await task(i);
+};
+
+/**
+ * Spawn n tasks that runs concurrently
+ * @param n
+ * @param task - The function to run
+ * @param concurrency - The amount of task to run concurrently
+ */
+export const concurrent = async (
+  n: number,
+  task: (id: number) => Promise<any>,
+  concurrency?: number
+): Promise<any> => {
+  if (concurrency == null) {
+    const arr = new Array(n);
+    for (let i = 0; i < n; i++) arr[i] = task(i + 1);
+    return Promise.all(arr);
+  }
+
+  const arr = new Array(concurrency);
+
+  let pre = 1;
+  for (let block = n / concurrency >>> 0; block > 0; block--) {
+    for (let j = 0; j < concurrency; j++) arr[j] = task(pre + j);
+
+    await Promise.all(arr);
+    pre += concurrency;
+  }
+
+  n -= pre;
+  for (let i = 0; i <= n; i++) arr[i] = task(pre + i);
+  return Promise.all(arr);
 };
