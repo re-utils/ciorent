@@ -1,3 +1,1 @@
-A lightweight, low-overhead concurrency library
-
-# Examples
+A lightweight, low-overhead concurrency library.

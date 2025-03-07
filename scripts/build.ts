@@ -72,9 +72,9 @@ console.log('Building examples...');
     let content = '';
     const config = (await import(path + '/config.ts')).default as Config;
 
-    content += `## ${config.heading}\n${desc(config)}`;
+    content += `# ${config.heading}\n${desc(config)}`;
     for (const [name, example] of Object.entries(config.examples)) {
-      content += `${example.heading == null ? '' : '### ' + example.heading}\n${desc(example)}`;
+      content += `${example.heading == null ? '' : '## ' + example.heading}\n${desc(example)}`;
 
       const code = (await readFile(path + '/' + name + '.ts')).toString();
       content += '```ts\n' + (code.endsWith('\n') ? code : code + '\n') + '```\n\n';
