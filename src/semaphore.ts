@@ -55,7 +55,7 @@ export const pause = (s: Semaphore): Promise<void> => {
  * Signal to the semaphore to release access
  */
 export const signal = (s: Semaphore): void => {
-  // Unlock for 1 thread
+  // Unlock for 1 task
   if (s[0] < 0)
     (s[2] = s[2][1]!)[0]();
 
@@ -69,10 +69,10 @@ export const task = <
   F extends (...args: any[]) => Promise<any>
 >(s: Semaphore, f: F): F => (async (...a) => {
   try {
-    console.log('Allowed', s[0]);
     await pause(s);
-    // eslint-disable-next-line
-    return f(...a);
+    // The signal() call can run first which
+    // Can unblock other task while this is still running
+    return await f(...a);
   } finally {
     signal(s);
   }

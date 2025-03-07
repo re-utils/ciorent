@@ -95,9 +95,6 @@ const task = async () => {
 
 const prepare = () => {
   console.log('Run before fetch:', performance.now().toFixed(2));
-
-  // Unblock the latch
-  latch.open(fetchLatch);
 }
 
 const main = async () => {
@@ -105,14 +102,18 @@ const main = async () => {
   await cio.sleep(500);
   prepare();
 
+  // Allows all previously blocked tasks to run
+  latch.open(fetchLatch);
+
+  // Reclose the latch
+  // Tasks that aren't blocked yet will be blocked
+  latch.reset(fetchLatch);
+
   return p;
 }
 
 // Run fetch after 500ms
 await main();
-
-// Re-close the latch
-latch.close(fetchLatch);
 
 // Run fetch after another 500ms
 await main();
@@ -166,15 +167,14 @@ const task = semaphore.task(
   semaphore.init(2),
   async (task: number) => {
     for (let i = 1; i <= 5; i++) {
-      await cio.pause;
       console.log('Task', task, 'iteration', i);
+      await cio.pause;
     }
 
-    await cio.sleep(500);
     console.log('Task', task, 'end');
   }
 );
 
-// Try to run 5 tasks concurrently
-for (let i = 1; i <= 5; i++) task(i);
+// Try to run 6 tasks with 4 tasks running concurrently
+cio.concurrent(6, task, 4);
 ```

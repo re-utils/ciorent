@@ -13,9 +13,6 @@ const task = async () => {
 
 const prepare = () => {
   console.log('Run before fetch:', performance.now().toFixed(2));
-
-  // Unblock the latch
-  latch.open(fetchLatch);
 }
 
 const main = async () => {
@@ -23,14 +20,18 @@ const main = async () => {
   await cio.sleep(500);
   prepare();
 
+  // Allows all previously blocked tasks to run
+  latch.open(fetchLatch);
+
+  // Reclose the latch
+  // Tasks that aren't blocked yet will be blocked
+  latch.reset(fetchLatch);
+
   return p;
 }
 
 // Run fetch after 500ms
 await main();
-
-// Re-close the latch
-latch.close(fetchLatch);
 
 // Run fetch after another 500ms
 await main();
