@@ -4,7 +4,7 @@
 
 import type { FixedQueue } from './fixed-queue';
 
-export { default as init } from './fixed-queue';
+export { init } from './fixed-queue';
 
 /**
  * Push an item to a sliding queue

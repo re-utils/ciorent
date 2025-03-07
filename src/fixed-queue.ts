@@ -40,4 +40,4 @@ export type QueueNode<T> = [
  * Create a fixed queue.
  * @param n - The queue size
  */
-export default <T extends {}>(n: number): FixedQueue<T> => [new Array(n), n, -1, -1];
+export const init = <T extends {}>(n: number): FixedQueue<T> => [new Array(n), n, -1, -1];

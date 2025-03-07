@@ -50,6 +50,7 @@ export const concurrent = async (
 
   const arr = new Array(concurrency);
 
+  // Run each concurrent block
   let pre = 0;
   for (let block = n / concurrency >>> 0; block > 0; block--) {
     for (let j = 0; j < concurrency; j++) arr[j] = task(pre + j);
