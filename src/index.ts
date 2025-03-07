@@ -29,7 +29,7 @@ export const sleep: (ms: number) => Promise<void> = globalThis.Bun?.sleep
  * @param task - The function to run
  */
 export const sequential = async (n: number, task: (id: number) => Promise<any>): Promise<void> => {
-  for (let i = 1; i <= n; i++) await task(i);
+  for (let i = 0; i < n; i++) await task(i);
 };
 
 /**
@@ -45,13 +45,13 @@ export const concurrent = async (
 ): Promise<any> => {
   if (concurrency == null) {
     const arr = new Array(n);
-    for (let i = 0; i < n; i++) arr[i] = task(i + 1);
+    for (let i = 0; i < n; i++) arr[i] = task(i);
     return Promise.all(arr);
   }
 
   const arr = new Array(concurrency);
 
-  let pre = 1;
+  let pre = 0;
   for (let block = n / concurrency >>> 0; block > 0; block--) {
     for (let j = 0; j < concurrency; j++) arr[j] = task(pre + j);
 
@@ -60,6 +60,6 @@ export const concurrent = async (
   }
 
   n -= pre;
-  for (let i = 0; i <= n; i++) arr[i] = task(pre + i);
+  for (let i = 0; i < n; i++) arr[i] = task(pre + i);
   return Promise.all(arr);
 };

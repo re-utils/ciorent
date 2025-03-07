@@ -1,9 +1,12 @@
 /// <reference types='bun-types' />
+import type { Config } from '../examples/types';
 import { existsSync, rmSync } from 'node:fs';
 import { resolve, join } from 'node:path/posix';
 
 import { transpileDeclaration } from 'typescript';
 import tsconfig from '../tsconfig.json';
+import { cpToLib, EXAMPLES, LIB, ROOT } from './utils';
+import { readFile } from 'node:fs/promises';
 
 // Constants
 const ROOTDIR = resolve(import.meta.dir, '..');
@@ -23,6 +26,8 @@ const transpiler = new Bun.Transpiler({
   treeShaking: true
 });
 
+// Build source files
+console.log('Building source files...');
 for (const path of new Bun.Glob('**/*.ts').scanSync(SOURCEDIR)) {
   const srcPath = `${SOURCEDIR}/${path}`;
 
@@ -40,4 +45,58 @@ for (const path of new Bun.Glob('**/*.ts').scanSync(SOURCEDIR)) {
 
       Bun.write(`${outPathNoExt}.d.ts`, transpileDeclaration(buf, tsconfig as any).outputText);
     });
+}
+
+// Write required files to libs
+console.log('Copying files...');
+cpToLib('package.json');
+
+// Build examples
+console.log('Building examples...');
+{
+  interface Chunk {
+    content: string,
+    priority: number
+  }
+
+  const desc = (props: { desc?: string }) => props.desc == null ? '' : props.desc + '\n';
+
+  let bufs: Chunk[] = [
+    {
+      content: await Bun.file(ROOT + '/README.md').text(),
+      priority: Infinity
+    }
+  ]
+
+  const process = async (path: string) => {
+    let content = '';
+    const config = (await import(path + '/config.ts')).default as Config;
+
+    content += `## ${config.heading}\n${desc(config)}`;
+    for (const [name, example] of Object.entries(config.examples)) {
+      content += `${example.heading == null ? '' : '### ' + example.heading}\n${desc(example)}`;
+
+      const code = (await readFile(path + '/' + name + '.ts')).toString();
+      content += '```ts\n' + (code.endsWith('\n') ? code : code + '\n') + '```\n\n';
+    }
+
+    bufs.push({
+      content, priority: config.priority ?? 0
+    });
+  }
+
+  await Promise.all(
+    [...new Bun.Glob('*').scanSync({
+      cwd: EXAMPLES,
+      onlyFiles: false,
+      absolute: true
+    })].map(process)
+  );
+
+  Bun.write(
+    LIB + '/README.md',
+    bufs.toSorted((a, b) => b.priority - a.priority)
+      .map((a) => a.content)
+      .join('')
+  );
 }
