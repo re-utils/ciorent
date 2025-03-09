@@ -17,7 +17,7 @@ const run = async () => {
 
 const log = async () => {
   while (true) {
-    // Block until x is recieved
+    // Wait until a value is sent
     const x = await channel.recieve(c);
     if (x == null) break;
 

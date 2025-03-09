@@ -14,5 +14,5 @@ const task = semaphore.task(
   }
 );
 
-// Try to run 6 tasks with 4 tasks running concurrently
+// Try to run 6 tasks concurrently
 cio.concurrent(6, task);
