@@ -6,8 +6,10 @@ const config = {
 
   plugin: ["typedoc-material-theme", "typedoc-plugin-inline-sources"],
 
-  darkHighlightTheme: "catppuccin-mocha",
+  darkHighlightTheme: "catppuccin-macchiato",
   lightHighlightTheme: "catppuccin-latte",
+
+  themeColor: "#1D2021",
 
   name: "Ciorent",
   readme: "./lib/README.md",

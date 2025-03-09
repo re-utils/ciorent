@@ -6,7 +6,7 @@ const task = async (id: number) => {
 }
 
 // Spawn and run 5 tasks sequentially
-console.log('Running sequentially:');
+console.log('Running 5 tasks sequentially:');
 cio.sequential(5, task);
 
 // Spawn and run 5 tasks concurrently
