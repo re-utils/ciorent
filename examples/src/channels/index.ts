@@ -10,18 +10,15 @@ const run = async () => {
     console.log('Sent', i);
   }
 
-  // Send the closed signal to the reciever
-  // Or else channel.recieve will block forever
-  channel.close(c);
+  // Resolve all waiting promises with `undefined`
+  // This is a way to tell the reciever to not listen to more data
+  channel.flush(c);
 };
 
 const log = async () => {
   while (true) {
-    // Non-blocking
+    // Block until x is recieved
     const x = await channel.recieve(c);
-
-    // 'recieve' returns undefined if
-    // The channel has been closed
     if (x == null) break;
 
     console.log('Recieved', x);

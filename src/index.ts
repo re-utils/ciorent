@@ -35,31 +35,12 @@ export const sequential = async (n: number, task: (id: number) => Promise<any>):
  * Spawn n tasks that runs concurrently
  * @param n
  * @param task - The function to run
- * @param concurrency - The amount of task to run concurrently
  */
-export const concurrent = async (
+export const concurrent = (
   n: number,
-  task: (id: number) => Promise<any>,
-  concurrency?: number
+  task: (id: number) => Promise<any>
 ): Promise<any> => {
-  if (concurrency == null) {
-    const arr = new Array(n);
-    for (let i = 0; i < n; i++) arr[i] = task(i);
-    return Promise.all(arr);
-  }
-
-  const arr = new Array(concurrency);
-
-  // Run each concurrent block
-  let pre = 0;
-  for (let block = n / concurrency >>> 0; block > 0; block--) {
-    for (let j = 0; j < concurrency; j++) arr[j] = task(pre + j);
-
-    await Promise.all(arr);
-    pre += concurrency;
-  }
-
-  n -= pre;
-  for (let i = 0; i < n; i++) arr[i] = task(pre + i);
+  const arr = new Array(n);
+  for (let i = 0; i < n; i++) arr[i] = task(i);
   return Promise.all(arr);
 };

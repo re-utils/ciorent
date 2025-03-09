@@ -6,7 +6,7 @@ const messages = topic.init<number>();
 // A task that publish messages
 const publisher = async () => {
   for (let i = 0; i < 5; i++) {
-    await cio.sleep(50);
+    await cio.sleep(100);
     topic.pub(messages, i);
   }
 
@@ -20,8 +20,8 @@ cio.concurrent(5, async (id: number) => {
   const sub = topic.sub(messages);
 
   while (true) {
-    // Block until
-    const x = await topic.next(sub);
+    // Block until the value is sent
+    const x = await topic.recieve(sub);
     if (x == null) break;
     console.log(`Task ${id}: ${x}`);
   }

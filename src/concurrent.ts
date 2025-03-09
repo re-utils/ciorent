@@ -3,28 +3,11 @@
  */
 
 /**
- * Describe a concurrency controller
+ * Describe an async task
  */
-export type Controller = <T>(task: () => Promise<T>) => Promise<T>;
+export type Task<T = unknown> = () => Promise<T>;
 
 /**
- * Create a concurrency controller, allow n tasks to run concurrently
- * @param n
+ * Describe a concurrency controller
  */
-export default (n: number): Controller => {
-  const pending = new Array<Promise<any>>(n);
-  let cnt = 0;
-
-  return (async (f: () => Promise<any>) => {
-    if (cnt < n)
-      // eslint-disable-next-line
-      return pending[cnt++] = f();
-
-    // Wait for all previous task to complete
-    // This ignores unhandled error promise
-    await Promise.allSettled(pending);
-    cnt = 0;
-    // eslint-disable-next-line
-    return pending[0] = f();
-  }) as any;
-};
+export type Controller = <T>(task: Task<T>) => Promise<T>;

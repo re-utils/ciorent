@@ -83,7 +83,6 @@ export default tsEslint.config({
     "no-octal-escape": "error",
     "no-proto": "error",
     "no-regex-spaces": "warn",
-    "no-return-assign": "error",
     "no-sequences": "error",
     "no-shadow-restricted-names": "error",
     "no-underscore-dangle": "error",

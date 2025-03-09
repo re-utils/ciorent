@@ -103,7 +103,7 @@ export const poll = <T extends {}>(t: Subscriber<T>): T | undefined => t[1][1] !
  * Returns a promise that resolves when the message queue is not empty
  * @param t
  */
-export const next = <T extends {}>(t: Subscriber<T>): Promise<T | undefined> => {
+export const recieve = <T extends {}>(t: Subscriber<T>): Promise<T | undefined> => {
   if (t[1][1] !== null)
     return Promise.resolve((t[1] = t[1][1])[0]);
 

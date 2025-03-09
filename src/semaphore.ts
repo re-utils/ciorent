@@ -62,16 +62,22 @@ export const signal = (s: Semaphore): void => {
 };
 
 /**
- * Create a task that acquire a semaphore and release the access later
+ * Create a task that acquire a semaphore and release the access when it's finished
  */
 export const task = <
   F extends (...args: any[]) => Promise<any>
 >(s: Semaphore, f: F): F => (async (...a) => {
-  await pause(s);
+  // Fast path
+  s[0]--;
+  if (s[0] < 0) {
+    // Push to the task queue
+    let r;
+    const p = new Promise<void>((res) => { r = res; });
+    s[1] = s[1][1] = [r!, null];
+    await p;
+  }
 
   try {
-    // The signal() call can run first which
-    // Can unblock other task while this is still running
     return await f(...a);
   } finally {
     signal(s);

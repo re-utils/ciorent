@@ -12,8 +12,3 @@ cio.sequential(5, task);
 // Spawn and run 5 tasks concurrently
 console.log('Running 5 tasks concurrently:');
 cio.concurrent(5, task);
-
-// Spawn and run 5 tasks, with the maximum
-// tasks running concurrently set to 3
-console.log('Running each 3 tasks concurrently:');
-cio.concurrent(5, task, 3);
