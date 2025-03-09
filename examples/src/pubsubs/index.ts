@@ -9,6 +9,10 @@ const publisher = async () => {
     await cio.sleep(50);
     topic.pub(messages, i);
   }
+
+  // Resolve all waiting promises
+  // And clear the value queue
+  topic.flush(messages);
 }
 
 // Spawn 5 tasks that recieve messages
@@ -16,6 +20,7 @@ cio.concurrent(5, async (id: number) => {
   const sub = topic.sub(messages);
 
   while (true) {
+    // Block until
     const x = await topic.next(sub);
     if (x == null) break;
     console.log(`Task ${id}: ${x}`);

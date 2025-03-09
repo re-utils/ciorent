@@ -67,12 +67,14 @@ export const pub = <T extends {}>(t: Topic<T>, value: T): void => {
 };
 
 /**
- * Resolve all waiting promises
+ * Resolve all waiting promises and clear all pending values
  * @param t
  */
-export const close = <T extends {}>(t: Topic<T>): void => {
+export const flush = <T extends {}>(t: Topic<T>): void => {
+  const head: QueueNode<T> = t[0] = [null!, null];
+
   // Flush the waiting queue
-  for (let i = 0, res = t[1], subs = t[2], head = t[0]; i < res.length; i++) {
+  for (let i = 0, res = t[1], subs = t[2]; i < res.length; i++) {
     // Resolve the waiting promise
     res[i]();
 
@@ -107,6 +109,7 @@ export const next = <T extends {}>(t: Subscriber<T>): Promise<T | undefined> => 
 
   // Add to waiting promises
   const topic = t[0];
+
   topic[2].push(t);
   return new Promise((res) => {
     topic[1].push(res);
