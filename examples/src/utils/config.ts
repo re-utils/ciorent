@@ -13,7 +13,7 @@ export default config({
     },
     spawn: {
       heading: 'Spawning tasks',
-      desc: 'Creating new tasks with controlled concurrency.'
+      desc: 'Utilities to create and run tasks.'
     }
   },
   priority: -Infinity
