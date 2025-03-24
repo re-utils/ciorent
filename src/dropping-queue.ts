@@ -2,10 +2,10 @@
  * @module Dropping queues
  */
 
-import type { FixedQueue } from './fixed-queue';
+import type { FixedQueue } from './fixed-queue.js';
 
-export { init } from './fixed-queue';
-export { pop } from './sliding-queue';
+export { init } from './fixed-queue.js';
+export { pop } from './sliding-queue.js';
 
 /**
  * Push an item to a dropping queue

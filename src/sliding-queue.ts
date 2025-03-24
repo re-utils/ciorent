@@ -2,9 +2,9 @@
  * @module Sliding queues
  */
 
-import type { FixedQueue } from './fixed-queue';
+import type { FixedQueue } from './fixed-queue.js';
 
-export { init } from './fixed-queue';
+export { init } from './fixed-queue.js';
 
 /**
  * Push an item to a sliding queue

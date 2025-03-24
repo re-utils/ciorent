@@ -8,7 +8,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     // Bundler mode
-    "moduleResolution": "nodenext",
+    "moduleResolution": "Bundler",
     "verbatimModuleSyntax": true,
     // Best practices
     "strict": true,
@@ -21,10 +21,10 @@
     "noImplicitThis": true,
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false,
-    // Declaration options
-    "declaration": true,
-    "declarationDir": "lib",
-    "stripInternal": true,
-    "isolatedDeclarations": true
+    // Paths
+    "paths": {
+      "ciorent": ["../src/index.ts"],
+      "ciorent/*": ["../src/*"]
+    }
   }
 }

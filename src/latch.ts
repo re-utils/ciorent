@@ -2,7 +2,7 @@
  * @module Latches
  */
 
-import { pause as endPromise } from '.';
+import { pause as endPromise } from './index.js';
 
 /**
  * Describe a latch

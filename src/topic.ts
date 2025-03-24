@@ -2,7 +2,7 @@
  * @module Pubsub
  */
 
-import type { QueueNode } from './fixed-queue';
+import type { QueueNode } from './fixed-queue.js';
 
 /**
  * Describe a topic

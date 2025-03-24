@@ -2,8 +2,8 @@
  * @module Semaphores
  */
 
-import { pause as resolvedPromise } from '.';
-import type { QueueNode } from './fixed-queue';
+import { pause as resolvedPromise } from './index.js';
+import type { QueueNode } from './fixed-queue.js';
 
 /**
  * Describe a semaphore
