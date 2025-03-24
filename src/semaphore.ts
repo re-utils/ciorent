@@ -62,24 +62,38 @@ export const signal = (s: Semaphore): void => {
 };
 
 /**
+ * Wrap a task to bind to a custom semaphore later
+ */
+export const wrap = <
+  Args extends any[],
+  Return extends Promise<any>
+>(f: (...args: Args) => Return): (s: Semaphore, ...a: Args) => Return =>
+// @ts-expect-error It is valid
+// eslint-disable-next-line
+  async (s, ...a) => {
+    // Fast path
+    s[0]--;
+    if (s[0] < 0) {
+    // Push to the task queue
+      let r;
+      const p = new Promise<void>((res) => { r = res; });
+      s[1] = s[1][1] = [r!, null];
+      await p;
+    }
+
+    try {
+      return await f(...a);
+    } finally {
+      signal(s);
+    }
+  };
+
+/**
  * Create a task that acquire a semaphore and release the access when it's finished
  */
 export const task = <
   F extends (...args: any[]) => Promise<any>
->(s: Semaphore, f: F): F => (async (...a) => {
-  // Fast path
-  s[0]--;
-  if (s[0] < 0) {
-    // Push to the task queue
-    let r;
-    const p = new Promise<void>((res) => { r = res; });
-    s[1] = s[1][1] = [r!, null];
-    await p;
-  }
-
-  try {
-    return await f(...a);
-  } finally {
-    signal(s);
-  }
-}) as F;
+>(s: Semaphore, f: F): F => {
+  f = wrap(f) as any;
+  return ((...a) => f(s, ...a)) as F;
+};
