@@ -1,6 +1,5 @@
 import { minify_sync } from 'terser';
-
-const DIR = import.meta.dir + '/../lib/';
+import { LIB } from './utils.js';
 
 const sizes: {
   entry: string,
@@ -15,12 +14,8 @@ const toByte = (num: number) =>
     ? (num / 1e3).toFixed(2) + 'KB'
     : num + 'B';
 
-for await (const path of new Bun.Glob('**/*.js').scan(DIR)) {
-  const file = Bun.file(DIR + path);
-
-  const stat = await file.stat();
-  if (!stat.isFile()) continue;
-
+for await (const path of new Bun.Glob('**/*.js').scan(LIB)) {
+  const file = Bun.file(LIB + '/' + path);
   const code = await file.text();
   const minfiedCode = minify_sync(code).code!;
 
@@ -36,10 +31,14 @@ for await (const path of new Bun.Glob('**/*.js').scan(DIR)) {
 sizes.sort((a, b) => a.size - b.size);
 
 // Convert to table columns
-console.table(sizes.map((val) => ({
-  Entry: val.entry,
-  Size: toByte(val.size),
-  Minify: toByte(val.minified),
-  GZIP: toByte(val.gzip),
-  "Minify GZIP": toByte(val.minifiedGzip)
-})));
+console.table(
+  sizes.map(
+    (val) => ({
+      Entry: val.entry,
+      Size: toByte(val.size),
+      Minify: toByte(val.minified),
+      GZIP: toByte(val.gzip),
+      'Minify GZIP': toByte(val.minifiedGzip)
+    })
+  )
+);

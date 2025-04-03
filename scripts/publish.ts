@@ -1,3 +1,4 @@
-import { exec } from './utils';
+import { cd, exec, LIB } from './utils.js';
 
-await exec`cd lib && bun publish --access=public`;
+cd(LIB);
+await exec`bun publish --access=public`;

@@ -1,20 +1,14 @@
-/// <reference types='bun-types' />
-import type { Config } from '../examples/types';
 import { existsSync, rmSync } from 'node:fs';
-import { resolve, join } from 'node:path/posix';
 
 import { transpileDeclaration } from 'typescript';
 import tsconfig from '../tsconfig.json';
-import { cpToLib, EXAMPLES, LIB, ROOT } from './utils';
+import pkg from '../package.json';
+import { cp, EXAMPLES, LIB, ROOT, SOURCE } from './utils.js';
 import { readFile } from 'node:fs/promises';
 
-// Constants
-const ROOTDIR = resolve(import.meta.dir, '..');
-const SOURCEDIR = `${ROOTDIR}/src`;
-const OUTDIR = join(ROOTDIR, tsconfig.compilerOptions.declarationDir);
-
 // Remove old content
-if (existsSync(OUTDIR)) rmSync(OUTDIR, { recursive: true });
+if (existsSync(LIB))
+  rmSync(LIB, { recursive: true });
 
 // Transpile files concurrently
 const transpiler = new Bun.Transpiler({
@@ -23,36 +17,50 @@ const transpiler = new Bun.Transpiler({
 
   // Lighter output
   minifyWhitespace: true,
-  treeShaking: true
+  treeShaking: true,
+  trimUnusedImports: true
 });
 
-// Build source files
-console.log('Building source files...');
-for (const path of new Bun.Glob('**/*.ts').scanSync(SOURCEDIR)) {
-  const srcPath = `${SOURCEDIR}/${path}`;
+// @ts-ignore
+const exports = pkg.exports = {} as Record<string, string>;
 
-  const pathExtStart = path.lastIndexOf('.');
-  const outPathNoExt = `${OUTDIR}/${path.substring(0, pathExtStart >>> 0)}`;
+(async () => {
+  const promises: Promise<any>[] = [];
 
-  Bun.file(srcPath)
-    .text()
-    .then((buf) => {
-      transpiler.transform(buf)
-        .then((res) => {
-          if (res.length !== 0)
-            Bun.write(`${outPathNoExt}.js`, res.replace(/const /g, 'let '));
-        });
+  for (const path of new Bun.Glob('**/*.ts').scanSync(SOURCE)) {
+    promises.push(
+      (async () => {
+        const pathNoExt = path.substring(0, path.lastIndexOf('.') >>> 0);
 
-      Bun.write(`${outPathNoExt}.d.ts`, transpileDeclaration(buf, tsconfig as any).outputText);
-    });
-}
+        const buf = await Bun.file(`${SOURCE}/${path}`).text();
+        Bun.write(`${LIB}/${pathNoExt}.d.ts`, transpileDeclaration(buf, tsconfig as any).outputText);
 
-// Write required files to libs
-console.log('Copying files...');
-cpToLib('package.json');
+        const transformed = await transpiler.transform(buf);
+        if (transformed !== '')
+          Bun.write(`${LIB}/${pathNoExt}.js`, transformed.replace(/const /g, 'let '));
+
+        exports[
+          pathNoExt === 'index'
+            ? '.'
+            : './' + (pathNoExt.endsWith('/index')
+              ? pathNoExt.slice(0, -6)
+              : pathNoExt
+            )
+        ] = './' + pathNoExt + (transformed === '' ? '.d.ts' : '.js');
+      })()
+    );
+  }
+
+  await Promise.all(promises);
+
+  delete pkg.devDependencies;
+  delete pkg.scripts;
+
+  Bun.write(LIB + '/package.json', JSON.stringify(pkg, null, 2));
+  cp(ROOT, LIB, 'README.md');
+})();
 
 // Build examples
-console.log('Building examples...');
 {
   interface Chunk {
     content: string,

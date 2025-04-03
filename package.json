@@ -19,25 +19,20 @@
   "types": "./index.d.ts",
   "scripts": {
     "task": "bun scripts/task.ts",
-    "build:test": "bun task build && bun docs && bun test",
-    "build:publish": "bun build:test && bun task report-size && bun task publish",
-    "lint": "eslint ./src",
-    "lint:fix": "eslint ./src --fix",
-    "docs": "typedoc"
+    "fmt": "biome format ./src",
+    "build:test": "bun task build && bun test",
+    "build:publish": "bun task build && bun task report-size && bun task publish"
   },
   "devDependencies": {
-    "@stylistic/eslint-plugin": "latest",
-    "@types/bun": "latest",
-    "@types/uglify-js": "latest",
-    "eslint": "latest",
-    "eslint-plugin-jsdoc": "latest",
-    "mitata": "latest",
+    "@biomejs/biome": "^1.9.4",
+    "@types/bun": "^1.2.8",
+    "ciorent": "^0.0.17",
+    "mitata": "^1.0.34",
     "terser": "^5.39.0",
-    "tsx": "latest",
-    "typedoc": "^0.27.9",
-    "typedoc-material-theme": "^1.3.0",
-    "typedoc-plugin-inline-sources": "^1.2.1",
-    "typescript": "latest",
-    "typescript-eslint": "latest"
-  }
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2"
+  },
+  "trustedDependencies": [
+    "@biomejs/biome"
+  ]
 }
