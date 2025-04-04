@@ -9,7 +9,7 @@ export default config({
     },
     sleep: {
       heading: 'Sleep',
-      desc: 'A cross-runtime sleep function.'
+      desc: 'Cross-runtime synchronous and asynchronous sleep functions.'
     },
     spawn: {
       heading: 'Spawning tasks',
@@ -17,4 +17,4 @@ export default config({
     }
   },
   priority: Number.NEGATIVE_INFINITY
-})
+});

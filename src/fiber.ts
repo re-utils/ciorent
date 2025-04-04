@@ -1,5 +1,5 @@
 /**
- * @module Fiber
+ * @module Fibers
  */
 
 /**
