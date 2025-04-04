@@ -4,7 +4,7 @@ const config = {
   entryPointStrategy: "Expand",
   out: "./docs",
 
-  plugin: ["typedoc-material-theme", "typedoc-plugin-inline-sources"],
+  plugin: ["typedoc-material-theme"],
 
   darkHighlightTheme: "catppuccin-macchiato",
   lightHighlightTheme: "catppuccin-latte",

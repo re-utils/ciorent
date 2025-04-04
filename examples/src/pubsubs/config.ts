@@ -1,4 +1,4 @@
-import config from "@/types";
+import config from '@/types';
 
 export default config({
   heading: 'Pubsub',

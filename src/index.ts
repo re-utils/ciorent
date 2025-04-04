@@ -15,16 +15,26 @@ export const pause: Promise<void> = Promise.resolve();
  * Sleep for a duration
  * @param ms - Sleep duration in milliseconds
  */
-// eslint-disable-next-line
 export const sleep: (ms: number) => Promise<void> =
   globalThis.Bun?.sleep ??
-  // eslint-disable-next-line
   globalThis.process?.getBuiltinModule?.('timers/promises').setTimeout ??
-  // eslint-disable-next-line
   ((ms) =>
     new Promise((res) => {
       setTimeout(res, ms);
     }));
+
+const sharedBuf = new Int32Array(new SharedArrayBuffer(4));
+/**
+ * Sleep for a duration synchronously.
+ *
+ * On the browser it only works in workers.
+ * @param ms - Sleep duration in milliseconds
+ */
+export const sleepSync: (ms: number) => void =
+  globalThis.Bun?.sleepSync ??
+  ((ms) => {
+    Atomics.wait(sharedBuf, 0, 0, ms);
+  });
 
 /**
  * Spawn n tasks that runs sequentially

@@ -10,7 +10,12 @@
     // Bundler mode
     "moduleResolution": "Bundler",
     "verbatimModuleSyntax": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    // Paths
+    "paths": {
+      "ciorent": ["../src"],
+      "ciorent/*": ["../src/*"]
+    }
   },
   "include": ["./**/*.ts"]
 }
