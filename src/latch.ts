@@ -7,17 +7,19 @@ import { pause as endPromise } from './index.js';
 /**
  * Describe a latch
  */
-export type Latch = [
-  pause: Promise<void>,
-  open: () => void
-];
+export type Latch = [pause: Promise<void>, open: () => void];
 
 /**
  * Create a latch
  */
 export const init = (): Latch => {
   let r;
-  return [new Promise<void>((res) => { r = res; }), r!];
+  return [
+    new Promise<void>((res) => {
+      r = res;
+    }),
+    r!,
+  ];
 };
 
 /**
@@ -39,7 +41,9 @@ export const open = (latch: Latch): void => {
 export const reset = (latch: Latch): void => {
   if (latch[0] === endPromise) {
     let r;
-    latch[0] = new Promise<void>((res) => { r = res; });
+    latch[0] = new Promise<void>((res) => {
+      r = res;
+    });
     latch[1] = r!;
   }
 };

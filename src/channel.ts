@@ -35,12 +35,7 @@ export const init = <T extends {}>(): Channel<T> => {
   const qu: Channel<T>[1] = [null!, null];
   const resolveQu: Channel<T>[3] = [null!, null];
 
-  return [
-    qu,
-    qu,
-    resolveQu,
-    resolveQu
-  ];
+  return [qu, qu, resolveQu, resolveQu];
 };
 
 /**
@@ -50,33 +45,34 @@ export const init = <T extends {}>(): Channel<T> => {
  */
 export const send = <T>(c: Channel<T>, t: T): void => {
   if (c[3][1] !== null)
-  // Run queue resolve function
+    // Run queue resolve function
     (c[3] = c[3][1])[0](t);
-  else
   // Push to normal queue
-    c[0] = c[0][1] = [t, null];
+  else c[0] = c[0][1] = [t, null];
 };
 
 /**
  * Recieve a message from a channel, return null if the channel is closed
  * @param c
  */
-export const recieve = <T>(c: Channel<T>): Promise<T | undefined> => c[1][1] !== null
-  // Get the normal queue value
-  ? Promise.resolve((c[1] = c[1][1])[0])
-  : new Promise((res) => {
-    // Add new resolve function to queue
-    c[2] = c[2][1] = [res, null];
-  });
+export const recieve = <T>(c: Channel<T>): Promise<T | undefined> =>
+  c[1][1] !== null
+    ? // Get the normal queue value
+      Promise.resolve((c[1] = c[1][1])[0])
+    : new Promise((res) => {
+        // Add new resolve function to queue
+        c[2] = c[2][1] = [res, null];
+      });
 
 /**
  * Recieve a message from a channel, return null if no message is currently in queue
  * @param c
  */
-export const poll = <T>(c: Channel<T>): T | undefined => c[1][1] !== null
-  // Get the normal queue value
-  ? (c[1] = c[1][1])[0]
-  : undefined;
+export const poll = <T>(c: Channel<T>): T | undefined =>
+  c[1][1] !== null
+    ? // Get the normal queue value
+      (c[1] = c[1][1])[0]
+    : undefined;
 
 /**
  * Resolves all pending promises of a channel
@@ -84,6 +80,5 @@ export const poll = <T>(c: Channel<T>): T | undefined => c[1][1] !== null
  */
 export const flush = <T>(c: Channel<T>): void => {
   // Terminate all pending promises
-  while (c[3][1] !== null)
-    (c[3] = c[3][1])[0]();
+  while (c[3][1] !== null) (c[3] = c[3][1])[0]();
 };

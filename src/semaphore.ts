@@ -42,7 +42,9 @@ export const pause = (s: Semaphore): Promise<void> => {
   if (s[0] < 0) {
     // Push to the task queue
     let r;
-    const p = new Promise<void>((res) => { r = res; });
+    const p = new Promise<void>((res) => {
+      r = res;
+    });
     s[1] = s[1][1] = [r!, null];
     return p;
   }
@@ -55,8 +57,7 @@ export const pause = (s: Semaphore): Promise<void> => {
  */
 export const signal = (s: Semaphore): void => {
   // Unlock for 1 task
-  if (s[0] < 0)
-    (s[2] = s[2][1]!)[0]();
+  if (s[0] < 0) (s[2] = s[2][1]!)[0]();
 
   s[0]++;
 };
@@ -64,19 +65,21 @@ export const signal = (s: Semaphore): void => {
 /**
  * Wrap a task to bind to a custom semaphore later
  */
-export const wrap = <
-  Args extends any[],
-  Return extends Promise<any>
->(f: (...args: Args) => Return): (s: Semaphore, ...a: Args) => Return =>
-// @ts-expect-error It is valid
-// eslint-disable-next-line
+export const wrap =
+  <Args extends any[], Return extends Promise<any>>(
+    f: (...args: Args) => Return,
+  ): ((s: Semaphore, ...a: Args) => Return) =>
+  // @ts-expect-error It is valid
+  // eslint-disable-next-line
   async (s, ...a) => {
     // Fast path
     s[0]--;
     if (s[0] < 0) {
-    // Push to the task queue
+      // Push to the task queue
       let r;
-      const p = new Promise<void>((res) => { r = res; });
+      const p = new Promise<void>((res) => {
+        r = res;
+      });
       s[1] = s[1][1] = [r!, null];
       await p;
     }
@@ -91,9 +94,10 @@ export const wrap = <
 /**
  * Create a task that acquire a semaphore and release the access when it's finished
  */
-export const task = <
-  F extends (...args: any[]) => Promise<any>
->(s: Semaphore, f: F): F => {
+export const task = <F extends (...args: any[]) => Promise<any>>(
+  s: Semaphore,
+  f: F,
+): F => {
   f = wrap(f) as any;
   return ((...a) => f(s, ...a)) as F;
 };

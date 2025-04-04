@@ -44,7 +44,6 @@
         "noForEach": "info"
       },
       "performance": {
-        "noBarrelFile": "warn",
         "noDelete": "off"
       },
       "nursery": {
@@ -57,7 +56,8 @@
       },
       "suspicious": {
         "noAssignInExpressions": "off",
-        "noExplicitAny": "off"
+        "noExplicitAny": "off",
+        "noImplicitAnyLet": "off"
       }
     }
   }

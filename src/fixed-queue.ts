@@ -31,13 +31,15 @@ export interface FixedQueue<T extends {}> {
 /**
  * Describe a queue node (singly linked list node)
  */
-export type QueueNode<T> = [
-  value: T,
-  next: QueueNode<T> | null
-];
+export type QueueNode<T> = [value: T, next: QueueNode<T> | null];
 
 /**
  * Create a fixed queue.
  * @param n - The queue size
  */
-export const init = <T extends {}>(n: number): FixedQueue<T> => [new Array(n), n, -1, -1];
+export const init = <T extends {}>(n: number): FixedQueue<T> => [
+  new Array(n),
+  n,
+  -1,
+  -1,
+];

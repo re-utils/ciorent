@@ -16,5 +16,5 @@ export default config({
       desc: 'Utilities to create and run tasks.'
     }
   },
-  priority: -Infinity
+  priority: Number.NEGATIVE_INFINITY
 })

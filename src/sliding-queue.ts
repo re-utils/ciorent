@@ -12,7 +12,7 @@ export { init } from './fixed-queue.js';
  * @param item
  */
 export const push = <T extends {}>(q: FixedQueue<T>, item: T): void => {
-  q[0][q[2] = (q[2] + 1) % q[1]] = item;
+  q[0][(q[2] = (q[2] + 1) % q[1])] = item;
 };
 
 /**
@@ -22,7 +22,7 @@ export const push = <T extends {}>(q: FixedQueue<T>, item: T): void => {
 export const pop = <T extends {}>(q: FixedQueue<T>): T | undefined => {
   const val = q[0][(q[3] + 1) % q[1]];
   if (val != null) {
-    q[0][q[3] = (q[3] + 1) % q[1]] = null;
+    q[0][(q[3] = (q[3] + 1) % q[1])] = null;
     return val;
   }
 };

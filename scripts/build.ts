@@ -1,10 +1,13 @@
-import { existsSync, rmSync } from 'node:fs';
+import type { Config } from '../examples/types.js';
 
+import { existsSync, rmSync } from 'node:fs';
+import { readFile } from 'node:fs/promises';
 import { transpileDeclaration } from 'typescript';
+
 import tsconfig from '../tsconfig.json';
 import pkg from '../package.json';
+
 import { cp, EXAMPLES, LIB, ROOT, SOURCE } from './utils.js';
-import { readFile } from 'node:fs/promises';
 
 // Remove old content
 if (existsSync(LIB))
@@ -53,6 +56,7 @@ if (existsSync(LIB))
 
   await Promise.all(promises);
 
+  delete pkg.trustedDependencies;
   delete pkg.devDependencies;
   delete pkg.scripts;
 

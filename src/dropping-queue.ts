@@ -14,6 +14,6 @@ export { pop } from './sliding-queue.js';
  */
 export const push = <T extends {}>(q: FixedQueue<T>, item: T): boolean => {
   if (q[0][(q[2] + 1) % q[1]] != null) return false;
-  q[0][q[2] = (q[2] + 1) % q[1]] = item;
+  q[0][(q[2] = (q[2] + 1) % q[1])] = item;
   return true;
 };
