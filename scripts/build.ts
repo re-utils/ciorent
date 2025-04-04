@@ -11,20 +11,20 @@ if (existsSync(LIB))
   rmSync(LIB, { recursive: true });
 
 // Transpile files concurrently
-const transpiler = new Bun.Transpiler({
-  loader: 'ts',
-  target: 'node',
-
-  // Lighter output
-  minifyWhitespace: true,
-  treeShaking: true,
-  trimUnusedImports: true
-});
-
-// @ts-ignore
-const exports = pkg.exports = {} as Record<string, string>;
-
 (async () => {
+  const transpiler = new Bun.Transpiler({
+    loader: 'ts',
+    target: 'node',
+
+    // Lighter output
+    minifyWhitespace: true,
+    treeShaking: true,
+    trimUnusedImports: true
+  });
+
+  // @ts-ignore
+  const exports = pkg.exports = {} as Record<string, string>;
+
   const promises: Promise<any>[] = [];
 
   for (const path of new Bun.Glob('**/*.ts').scanSync(SOURCE)) {
