@@ -9,7 +9,7 @@ const thread1 = fiber.fn(function* () {
   yield cio.sleep(1000);
 
   console.log('Fiber 1 done');
-})
+});
 
 const thread2 = fiber.fn(function* (thread) {
   console.log('Fiber 2 started');
