@@ -85,10 +85,11 @@ const invoke = async (g: Generator, thread: Thread) => {
  * Create a fiber function
  * @param f
  */
-export const fn = <const Fn extends (
-  thread: Thread,
-  ...args: any[]
-) => Generator>(f: Fn): Fn => f;
+export const fn = <
+  const Fn extends (thread: Thread, ...args: any[]) => Generator,
+>(
+  f: Fn,
+): Fn => f;
 
 /**
  * A basic fiber runtime
@@ -139,7 +140,7 @@ export function* join<T extends Thread>(
   t: T,
 ): Generator<Awaited<T[1]>, Awaited<T[1]>> {
   return yield t[1] as any;
-};
+}
 
 /**
  * Wait for a fiber to finish and retrieve its result
@@ -154,7 +155,18 @@ export const finish = <T extends Thread>(t: T): T[1] => t[1];
  */
 export const mount = (child: Thread, parent: Thread): void => {
   parent[3].push(child);
-}
+};
+
+/**
+ * Control the fiber with an abort signal
+ * @param t
+ * @param signal
+ */
+export const control = (t: Thread, signal: AbortSignal): void => {
+  signal.addEventListener('abort', () => {
+    stop(t);
+  });
+};
 
 /**
  * Unwrap a promise result
@@ -163,4 +175,4 @@ export function* unwrap<T extends Promise<any>>(
   t: T,
 ): Generator<Awaited<T>, Awaited<T>> {
   return yield t as any;
-};
+}
