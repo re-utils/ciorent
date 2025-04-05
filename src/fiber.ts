@@ -3,50 +3,51 @@
  */
 
 /**
- * When the fiber is paused
+ * Check whether the fiber is paused
  */
-export const paused = (t: Thread): boolean => t[2] === 0;
+export const paused = (t: Thread): boolean => t[1] === 0;
 
 /**
- * When the fiber is running
+ * Check whether the fiber is running
  */
-export const running = (t: Thread): boolean => t[2] === 1;
+export const running = (t: Thread): boolean => t[1] === 1;
 
 /**
- * When the fiber is done
+ * Check whether the fiber is done
  */
-export const done = (t: Thread): boolean => t[2] === 2;
+export const done = (t: Thread): boolean => t[1] === 2;
 
 /**
  * Describe a fiber
  */
 export interface Thread<T = unknown, TReturn = unknown> {
   /**
-   * The original generator
-   */
-  0: Generator<T, TReturn>;
-
-  /**
    * The waiting promise
    */
-  1: Promise<T | TReturn>;
+  0: Promise<T | TReturn>;
 
   /**
    * Fiber status
    */
-  2: 0 | 1 | 2;
+  1: 0 | 1 | 2;
 
   /**
    * Callback to continue running the fiber
    */
-  3: null | (() => void);
+  2: null | (() => void);
+
+  /**
+   * Bounded threads
+   */
+  3: Thread[];
 }
 
 /**
  * Describe a fiber runtime
  */
-export type Runtime = <const T, const TReturn>(
-  gen: Generator<T, TReturn>,
+export type Runtime = <const T, const TReturn, const Args extends any[]>(
+  gen: (thread: Thread<T, TReturn>, ...args: Args) => Generator<T, TReturn>,
+  ...args: Args
 ) => Thread<T, TReturn>;
 
 const invoke = async (g: Generator, thread: Thread) => {
@@ -56,33 +57,46 @@ const invoke = async (g: Generator, thread: Thread) => {
     const v = await t.value;
 
     // Paused
-    if (thread[2] === 0) {
+    if (thread[1] === 0) {
       let r;
       const p = new Promise<any>((res) => {
         r = res;
       });
-      thread[3] = r as any;
+      thread[2] = r as any;
       await p;
     }
 
     // If the fiber got stopped
-    if (thread[2] === 2) return v;
+    if (thread[1] === 2) {
+      thread[3].forEach(stop);
+      return v;
+    }
 
     // Continue the fiber
     t = g.next(v);
   }
 
-  thread[2] = 2;
+  thread[1] = 2;
+  thread[3].forEach(stop);
   return t.value;
 };
+
+/**
+ * Create a fiber function
+ * @param f
+ */
+export const fn = <const Fn extends (
+  thread: Thread,
+  ...args: any[]
+) => Generator>(f: Fn): Fn => f;
 
 /**
  * A basic fiber runtime
  * @param g
  */
-export const start: Runtime = (g) => {
-  const thread = [g, null as any as Promise<any>, 1, null] as Thread;
-  thread[1] = invoke(g, thread);
+export const start: Runtime = (f, ...args) => {
+  const thread = [null as any as Promise<any>, 1, null, []] as Thread;
+  thread[0] = invoke(f(thread as any, ...args), thread);
   return thread as any;
 };
 
@@ -91,7 +105,7 @@ export const start: Runtime = (g) => {
  * @param t
  */
 export const pause = (t: Thread): void => {
-  if (t[2] === 1) t[2] = 0;
+  if (t[1] === 1) t[1] = 0;
 };
 
 /**
@@ -99,24 +113,22 @@ export const pause = (t: Thread): void => {
  * @param t
  */
 export const resume = (t: Thread): void => {
-  if (t[2] === 0) {
-    t[2] = 1;
+  if (t[1] === 0) {
+    t[1] = 1;
     // Can be a no-op
-    t[3]?.();
+    t[2]?.();
   }
 };
 
 /**
- * Stop the execution of a fiber and retrieve the result
+ * Stop the execution of a fiber
  * @param t
  */
-export const stop = <T extends Thread>(t: T): T[1] => {
-  if (t[2] === 0) {
-    t[2] = 2;
-    t[3]!();
-  } else t[2] = 2;
-
-  return t[1];
+export const stop = (t: Thread): void => {
+  if (t[1] === 0) {
+    t[1] = 2;
+    t[2]!();
+  } else t[1] = 2;
 };
 
 /**
@@ -136,9 +148,18 @@ export function* join<T extends Thread>(
 export const finish = <T extends Thread>(t: T): T[1] => t[1];
 
 /**
- * Wait for a promise to resolve then retrieve its result
+ * Mount child fiber lifetime to parent lifetime
+ * @param child
+ * @param parent
  */
-export function* wait<T extends Promise<any>>(
+export const mount = (child: Thread, parent: Thread): void => {
+  parent[3].push(child);
+}
+
+/**
+ * Unwrap a promise result
+ */
+export function* unwrap<T extends Promise<any>>(
   t: T,
 ): Generator<Awaited<T>, Awaited<T>> {
   return yield t as any;

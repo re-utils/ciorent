@@ -1,29 +1,28 @@
 import * as cio from 'ciorent';
 import * as fiber from 'ciorent/fiber';
 
-function* thread1() {
+const thread1 = fiber.fn(function* () {
   console.log('Fiber 1 started');
-  yield;
-  console.log('Fiber 1 done');
-}
 
-function* thread2() {
+  // Thread1 will be interrupted by thread2
+  // As thread2 will end first
+  yield cio.sleep(1000);
+
+  console.log('Fiber 1 done');
+})
+
+const thread2 = fiber.fn(function* (thread) {
   console.log('Fiber 2 started');
 
   yield;
   console.log('Fiber 2 resumed');
 
-  // Wait for a promise
-  yield* fiber.wait(cio.sleep(1000));
-  console.log('Fiber 2 waited for 1s');
-
-  // Start task 1 and wait for it to be done
-  yield* fiber.join(
-    fiber.start(thread1())
-  );
+  // Start thread 1 and make thread1
+  // lifetime depends on thread2
+  fiber.mount(fiber.start(thread1), thread);
 
   console.log('Fiber 2 done');
-}
+});
 
 // Start running the thread
-fiber.start(thread2());
+fiber.start(thread2);
