@@ -19,10 +19,10 @@ const thread2 = fiber.fn(function* (thread) {
 
   // Start thread 1 and make thread1
   // lifetime depends on thread2
-  fiber.mount(fiber.start(thread1), thread);
+  fiber.mount(fiber.spawn(thread1), thread);
 
   console.log('Fiber 2 done');
 });
 
 // Start running the thread
-fiber.start(thread2);
+fiber.spawn(thread2);

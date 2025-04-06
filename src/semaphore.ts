@@ -70,7 +70,6 @@ export const wrap =
     f: (...args: Args) => Return,
   ): ((s: Semaphore, ...a: Args) => Return) =>
   // @ts-expect-error It is valid
-  // eslint-disable-next-line
   async (s, ...a) => {
     // Fast path
     s[0]--;
@@ -90,14 +89,3 @@ export const wrap =
       signal(s);
     }
   };
-
-/**
- * Create a task that acquire a semaphore and release the access when it's finished
- */
-export const task = <F extends (...args: any[]) => Promise<any>>(
-  s: Semaphore,
-  f: F,
-): F => {
-  f = wrap(f) as any;
-  return ((...a) => f(s, ...a)) as F;
-};

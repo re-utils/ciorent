@@ -41,11 +41,12 @@ export const sleepSync: (ms: number) => void =
  * @param n
  * @param task - The function to run
  */
-export const sequential = async (
+export const sequential = async <const T extends any[]>(
   n: number,
-  task: (id: number) => Promise<any>,
+  task: (...args: [...T, id: number]) => Promise<any>,
+  ...args: T
 ): Promise<void> => {
-  for (let i = 0; i < n; i++) await task(i);
+  for (let i = 0; i < n; i++) await task(...args, i);
 };
 
 /**
@@ -53,11 +54,12 @@ export const sequential = async (
  * @param n
  * @param task - The function to run
  */
-export const concurrent = (
+export const concurrent = <const T extends any[]>(
   n: number,
-  task: (id: number) => Promise<any>,
+  task: (...args: [...T, id: number]) => Promise<any>,
+  ...args: T
 ): Promise<any> => {
   const arr = new Array(n);
-  for (let i = 0; i < n; i++) arr[i] = task(i);
+  for (let i = 0; i < n; i++) arr[i] = task(...args, i);
   return Promise.all(arr);
 };

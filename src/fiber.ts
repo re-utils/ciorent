@@ -95,7 +95,7 @@ export const fn = <
  * A basic fiber runtime
  * @param g
  */
-export const start: Runtime = (f, ...args) => {
+export const spawn: Runtime = (f, ...args) => {
   const thread = [null as any as Promise<any>, 1, null, []] as Thread;
   thread[0] = invoke(f(thread as any, ...args), thread);
   return thread as any;
@@ -128,7 +128,8 @@ export const resume = (t: Thread): void => {
 export const stop = (t: Thread): void => {
   if (t[1] === 0) {
     t[1] = 2;
-    t[2]!();
+    // Can be a no-op
+    t[2]?.();
   } else t[1] = 2;
 };
 
