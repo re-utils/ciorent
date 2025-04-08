@@ -17,7 +17,7 @@ export const push = <T extends {}>(q: FixedQueue<T>, item: T): void => {
 
 /**
  * Pop an item from the queue
- * @param q - The queue to pull from
+ * @param q - The queue to pop from
  */
 export const pop = <T extends {}>(q: FixedQueue<T>): T | undefined => {
   const val = q[0][(q[3] + 1) % q[1]];

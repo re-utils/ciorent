@@ -14,6 +14,10 @@ export default config({
     spawn: {
       heading: 'Spawning tasks',
       desc: 'Utilities to create and run tasks.'
+    },
+    debounce: {
+      heading: 'Debounce',
+      desc: 'Dropping tasks for a period of time'
     }
   },
   priority: Number.NEGATIVE_INFINITY

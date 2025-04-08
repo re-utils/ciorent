@@ -54,12 +54,39 @@ export const sequential = async <const T extends any[]>(
  * @param n
  * @param task - The function to run
  */
-export const concurrent = <const T extends any[]>(
+export const concurrent = <const T extends any[], const R>(
   n: number,
-  task: (...args: [...T, id: number]) => Promise<any>,
+  task: (...args: [...T, id: number]) => Promise<R>,
   ...args: T
-): Promise<any> => {
+): Promise<R[]> => {
   const arr = new Array(n);
   for (let i = 0; i < n; i++) arr[i] = task(...args, i);
   return Promise.all(arr);
+};
+
+/**
+ * Drop sync function calls for a specific period
+ * @param f - The target function to debounce
+ * @param ms - The time period in milliseconds
+ */
+export const debounce = <const Args extends any[]>(
+  f: (...args: Args) => any,
+  ms: number,
+): ((...args: Args) => void) => {
+  // Expire time for debounce
+  let args: Args;
+  let unlocked = true;
+
+  const unlock = () => {
+    unlocked = true;
+  };
+  const call = () => Promise.try(f, ...args).finally(unlock);
+
+  return (...a) => {
+    args = a;
+    if (unlocked) {
+      unlocked = false;
+      setTimeout(call, ms);
+    }
+  };
 };
