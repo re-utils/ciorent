@@ -65,7 +65,7 @@ export const concurrent = <const T extends any[], const R>(
 };
 
 /**
- * Drop sync function calls for a specific period
+ * Drop function calls until it doesn't get called for a specific period.
  * @param f - The target function to debounce
  * @param ms - The time period in milliseconds
  */
@@ -74,19 +74,36 @@ export const debounce = <const Args extends any[]>(
   ms: number,
 ): ((...args: Args) => void) => {
   // Expire time for debounce
-  let args: Args;
-  let unlocked = true;
-
-  const unlock = () => {
-    unlocked = true;
-  };
-  const call = () => Promise.try(f, ...args).finally(unlock);
+  let id: any;
 
   return (...a) => {
-    args = a;
-    if (unlocked) {
-      unlocked = false;
-      setTimeout(call, ms);
+    clearTimeout(id);
+    id = setTimeout(f, ms, ...a);
+  };
+};
+
+/**
+ * Drop function calls for a specific period
+ * @param f - The target function to throttle
+ * @param ms - The time period in milliseconds
+ * @param limit - The call limit in the time period
+ */
+export const throttle = <const Args extends any[]>(
+  f: (...args: Args) => any,
+  ms: number,
+  limit: number
+): ((...args: Args) => void) => {
+  let cur = limit;
+
+  const call = (...a: Args) => {
+    cur++;
+    f(...a);
+  }
+
+  return (...a) => {
+    if (cur > 0) {
+      cur--;
+      setTimeout(call, ms, ...a);
     }
   };
 };

@@ -17,7 +17,11 @@ export default config({
     },
     debounce: {
       heading: 'Debounce',
-      desc: 'Dropping tasks for a period of time'
+      desc: 'Dropping tasks for a period of time.'
+    },
+    throttle: {
+      heading: 'Throttle',
+      desc: 'Limit function calls for a specific period of time.'
     }
   },
   priority: Number.NEGATIVE_INFINITY

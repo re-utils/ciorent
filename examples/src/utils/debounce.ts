@@ -5,5 +5,5 @@ const fn = cio.debounce((id: number) => {
 }, 500);
 
 fn(1); // fn(1) gets skipped
-cio.sleepSync(100);
+await cio.sleep(100);
 fn(2); // fn(2) gets executed
