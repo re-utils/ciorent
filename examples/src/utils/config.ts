@@ -19,8 +19,8 @@ export default config({
       heading: 'Debounce',
       desc: 'Dropping tasks for a period of time.'
     },
-    throttle: {
-      heading: 'Throttle',
+    rateLimit: {
+      heading: 'Rate limit',
       desc: 'Limit function calls for a specific period of time.'
     }
   },

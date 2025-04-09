@@ -88,22 +88,20 @@ export const debounce = <const Args extends any[]>(
  * @param ms - The time period in milliseconds
  * @param limit - The call limit in the time period
  */
-export const throttle = <const Args extends any[]>(
+export const rateLimit = <const Args extends any[]>(
   f: (...args: Args) => any,
   ms: number,
   limit: number
 ): ((...args: Args) => void) => {
   let cur = limit;
 
-  const call = (...a: Args) => {
-    cur++;
-    f(...a);
-  }
+  const call = () => { cur++; }
 
   return (...a) => {
     if (cur > 0) {
       cur--;
-      setTimeout(call, ms, ...a);
+      f(...a);
+      setTimeout(call, ms);
     }
   };
 };

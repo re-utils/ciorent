@@ -1,6 +1,6 @@
 import * as cio from 'ciorent';
 
-const fn = cio.throttle((id: number) => {
+const fn = cio.rateLimit((id: number) => {
   console.log('ID:', id);
 }, 500, 1);
 
