@@ -1,5 +1,6 @@
 import * as cio from 'ciorent';
 
+// Allow 1 call in 500ms
 const fn = cio.rateLimit((id: number) => {
   console.log('ID:', id);
 }, 500, 1);

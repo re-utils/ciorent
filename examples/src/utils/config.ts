@@ -17,11 +17,15 @@ export default config({
     },
     debounce: {
       heading: 'Debounce',
-      desc: 'Dropping tasks for a period of time.'
+      desc: 'Postpones execution until after an idle period.',
     },
     rateLimit: {
-      heading: 'Rate limit',
-      desc: 'Limit function calls for a specific period of time.'
+      heading: 'Rate Limit',
+      desc: 'Limits the number of calls within a time window.',
+    },
+    throttle: {
+      heading: 'Throttle',
+      desc: 'Executes a function at a regular interval.',
     }
   },
   priority: Number.NEGATIVE_INFINITY

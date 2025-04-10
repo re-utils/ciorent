@@ -84,7 +84,7 @@ export const debounce = <const Args extends any[]>(
 
 /**
  * Drop function calls for a specific period
- * @param f - The target function to throttle
+ * @param f - The target function to rate limit
  * @param ms - The time period in milliseconds
  * @param limit - The call limit in the time period
  */
@@ -93,15 +93,61 @@ export const rateLimit = <const Args extends any[]>(
   ms: number,
   limit: number
 ): ((...args: Args) => void) => {
-  let cur = limit;
-
-  const call = () => { cur++; }
+  const call = () => { limit++; }
 
   return (...a) => {
-    if (cur > 0) {
-      cur--;
-      f(...a);
-      setTimeout(call, ms);
+    if (limit > 0) {
+      limit--;
+      try {
+        f(...a);
+      } finally {
+        setTimeout(call, ms);
+      }
     }
   };
 };
+
+type QueueNode<T> = [
+  resolve: (v: any) => void,
+  value: T,
+  next: QueueNode<T> | null
+];
+
+/**
+ * Throttle function execution for a time period
+ * @param f - The function to throttle
+ * @param ms - The time in milliseconds
+ * @param limit - The call limit in the time period
+ */
+export const throttle = <const Args extends any[], const R>(
+  f: (...args: Args) => R,
+  ms: number,
+  limit: number
+): ((...args: Args) => Promise<Awaited<R>>) => {
+  let head: QueueNode<Args> = [null!, null!, null];
+  let tail = head;
+
+  const unlock = () => {
+    if (tail !== head) {
+      tail = tail[2]!;
+      // Resolve tail promise
+      tail[0](f(...tail[1]));
+      // Unlock another item
+      setTimeout(unlock, ms);
+    } else limit++;
+  }
+
+  // @ts-ignore
+  return (...a) => {
+    if (limit === 0) {
+      let r: (v: R) => void;
+      const p = new Promise((res) => { r = res });
+      head = head[2] = [r!, a, null];
+      return p;
+    }
+
+    limit--;
+    setTimeout(unlock, ms);
+    return f(...a);
+  };
+}
