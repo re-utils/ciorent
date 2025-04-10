@@ -15,5 +15,5 @@ const task = semaphore.wrap(
 // Only allow 2 task to run concurrently
 const sem = semaphore.init(2);
 
-// Try to run 6 tasks concurrently
-cio.concurrent(6, (sem, id) => task(sem, id), sem);
+// Try to run 5 tasks concurrently
+cio.concurrent(5, (sem, id) => task(sem, id), sem);

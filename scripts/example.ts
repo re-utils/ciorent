@@ -1,9 +1,15 @@
-import { EXAMPLES } from './utils';
+import { existsSync } from 'node:fs';
+import { cd, EXAMPLES } from './utils';
 
-const task = process.argv[2];
+let task = process.argv[2];
 if (task == null) throw new Error('An example must be specified!');
 
-const path = EXAMPLES + '/' + task + '.ts';
-console.log('Running', path.replace(process.cwd(), '.'));
+if (!existsSync(task + '.ts')) {
+  task += '/index';
+  if (!existsSync(task + '.ts'))
+    throw new Error('Cannot find specified example to run!');
+}
+console.log('Running', task);
 
-await Bun.$`bun ${{ raw: path }}`;
+cd(EXAMPLES);
+await Bun.$`${{ raw: process.argv[3] === '--node' ? 'bun tsx' : 'bun' }} ${{ raw: './' + task + '.ts' }}`;

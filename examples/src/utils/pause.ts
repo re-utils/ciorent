@@ -4,9 +4,11 @@ import * as cio from 'ciorent';
 const task1 = async () => {
   let x = 0;
 
-  // Pause to let task2 to run
+  // Yield control back to the runtime, allowing it to
+  // schedule other tasks
   await cio.pause;
 
+  // Simulate heavy operation
   for (let i = 0; i < (Math.random() + 15) * 1e6; i++)
     x += Math.random() * 32 + i * Math.round(Math.random() * 16);
 
@@ -15,11 +17,8 @@ const task1 = async () => {
 
 // Short async task
 const task2 = async () => {
-  console.log('Fetch start', performance.now().toFixed(2) + 'ms');
-
-  // This will pause task2 to let task1 to continue running
+  console.log('Start fetching...');
   const txt = await fetch('http://example.com');
-
   console.log('Fetch status', txt.status);
 };
 
