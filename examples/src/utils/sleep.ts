@@ -1,9 +1,9 @@
-import { sleep, sleepSync } from 'ciorent';
+import * as cio from 'ciorent';
 
-await sleep(500);
+await cio.sleep(500);
 console.log('Hi');
 
 // This blocks the current thread
 // On the browser this only works in workers
-sleepSync(500);
+cio.sleepSync(500);
 console.log('Hi');

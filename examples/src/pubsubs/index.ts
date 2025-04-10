@@ -5,7 +5,7 @@ const messages = topic.init<number>();
 
 // A task that publish messages
 const publisher = async () => {
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 3; i++) {
     await cio.sleep(100);
     topic.pub(messages, i);
   }
@@ -15,15 +15,15 @@ const publisher = async () => {
   topic.flush(messages);
 }
 
-// Spawn 5 tasks that recieve messages
-cio.concurrent(5, async (id: number) => {
+// Spawn 3 tasks that recieve messages
+cio.concurrent(3, async (id: number) => {
   const sub = topic.sub(messages);
 
   while (true) {
     // Block until the value is sent
     const x = await topic.recieve(sub);
     if (x == null) break;
-    console.log(`Task ${id}: ${x}`);
+    console.log(`Task ${id} recieved: ${x}`);
   }
 });
 

@@ -4,8 +4,8 @@ import * as cio from 'ciorent';
 const c = channel.init<number>();
 
 const run = async () => {
-  for (let i = 0; i < 10; i++) {
-    await cio.sleep(10);
+  for (let i = 0; i < 5; i++) {
+    await cio.sleep(100);
     channel.send(c, i);
     console.log('Sent', i);
   }
@@ -17,7 +17,7 @@ const run = async () => {
 
 const log = async () => {
   while (true) {
-    // Wait until a value is sent
+    // Wait until a value is sent to the channel
     const x = await channel.recieve(c);
     if (x == null) break;
 
@@ -25,8 +25,8 @@ const log = async () => {
   };
 }
 
-run();
 log();
+run();
 
 // This runs first
 console.log('Starting...');

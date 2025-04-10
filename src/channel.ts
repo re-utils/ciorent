@@ -32,8 +32,8 @@ export interface Channel<T> {
  * Create a channel
  */
 export const init = <T extends {}>(): Channel<T> => {
-  const qu: Channel<T>[1] = [null!, null];
-  const resolveQu: Channel<T>[3] = [null!, null];
+  const qu: Channel<T>[1] = [null] as any;
+  const resolveQu: Channel<T>[3] = [null, null!] as any;
 
   return [qu, qu, resolveQu, resolveQu];
 };
@@ -44,11 +44,11 @@ export const init = <T extends {}>(): Channel<T> => {
  * @param t - The message to send
  */
 export const send = <T>(c: Channel<T>, t: T): void => {
-  if (c[3][1] !== null)
+  if (c[3][0] !== null)
     // Run queue resolve function
-    (c[3] = c[3][1])[0](t);
+    (c[3] = c[3][0])[1](t);
   // Push to normal queue
-  else c[0] = c[0][1] = [t, null];
+  else c[0] = c[0][0] = [null, t];
 };
 
 /**
@@ -56,12 +56,12 @@ export const send = <T>(c: Channel<T>, t: T): void => {
  * @param c
  */
 export const recieve = <T>(c: Channel<T>): Promise<T | undefined> =>
-  c[1][1] !== null
+  c[1][0] !== null
     ? // Get the normal queue value
-      Promise.resolve((c[1] = c[1][1])[0])
+      Promise.resolve((c[1] = c[1][0])[1])
     : new Promise((res) => {
         // Add new resolve function to queue
-        c[2] = c[2][1] = [res, null];
+        c[2] = c[2][0] = [null, res];
       });
 
 /**
@@ -69,9 +69,9 @@ export const recieve = <T>(c: Channel<T>): Promise<T | undefined> =>
  * @param c
  */
 export const poll = <T>(c: Channel<T>): T | undefined =>
-  c[1][1] !== null
+  c[1][0] !== null
     ? // Get the normal queue value
-      (c[1] = c[1][1])[0]
+      (c[0] = c[1][0])[1]
     : undefined;
 
 /**
@@ -80,5 +80,5 @@ export const poll = <T>(c: Channel<T>): T | undefined =>
  */
 export const flush = <T>(c: Channel<T>): void => {
   // Terminate all pending promises
-  while (c[3][1] !== null) (c[3] = c[3][1])[0]();
+  while (c[3][0] !== null) (c[3] = c[3][0])[1]();
 };

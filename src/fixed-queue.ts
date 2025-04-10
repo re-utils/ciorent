@@ -31,7 +31,7 @@ export interface FixedQueue<T extends {}> {
 /**
  * Describe a queue node (singly linked list node)
  */
-export type QueueNode<T> = [value: T, next: QueueNode<T> | null];
+export type QueueNode<T> = [next: QueueNode<T> | null, value: T];
 
 /**
  * Create a fixed queue.

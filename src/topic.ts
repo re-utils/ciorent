@@ -27,7 +27,7 @@ export interface Topic<T extends {}> {
 /**
  * Create a topic
  */
-export const init = <T extends {}>(): Topic<T> => [[null!, null], [], []];
+export const init = <T extends {}>(): Topic<T> => [[null] as any, [], []];
 
 /**
  * Describe a topic
@@ -50,7 +50,7 @@ export const sub = <T extends {}>(t: Topic<T>): Subscriber<T> => [t, t[0]];
  * @param t
  */
 export const pub = <T extends {}>(t: Topic<T>, value: T): void => {
-  const head = (t[0] = t[0][1] = [value, null]);
+  const head = (t[0] = t[0][0] = [null, value]);
 
   // Flush the waiting queue
   for (let i = 0, res = t[1], subs = t[2]; i < res.length; i++) {
@@ -71,7 +71,7 @@ export const pub = <T extends {}>(t: Topic<T>, value: T): void => {
  * @param t
  */
 export const flush = <T extends {}>(t: Topic<T>): void => {
-  const head: QueueNode<T> = (t[0] = [null!, null]);
+  const head: QueueNode<T> = (t[0] = [null] as any);
 
   // Flush the waiting queue
   for (let i = 0, res = t[1], subs = t[2]; i < res.length; i++) {
@@ -94,7 +94,7 @@ export const flush = <T extends {}>(t: Topic<T>): void => {
  * @param t
  */
 export const poll = <T extends {}>(t: Subscriber<T>): T | undefined =>
-  t[1][1] !== null ? (t[1] = t[1][1])[0] : undefined;
+  t[1][0] !== null ? (t[1] = t[1][0])[1] : undefined;
 
 /**
  * Get the next value in the message queue
@@ -105,7 +105,7 @@ export const poll = <T extends {}>(t: Subscriber<T>): T | undefined =>
 export const recieve = <T extends {}>(
   t: Subscriber<T>,
 ): Promise<T | undefined> => {
-  if (t[1][1] !== null) return Promise.resolve((t[1] = t[1][1])[0]);
+  if (t[1][0] !== null) return Promise.resolve((t[1] = t[1][0])[1]);
 
   // Add to waiting promises
   const topic = t[0];

@@ -51,34 +51,37 @@ export type Runtime = <const T, const TReturn, const Args extends any[]>(
 ) => Thread<T, TReturn>;
 
 const invoke = async (g: Generator, thread: Thread) => {
-  let t = g.next();
+  try {
+    let t = g.next();
 
-  while (!t.done) {
-    const v = await t.value;
+    while (!t.done) {
+      const v = await t.value;
 
-    // Paused
-    if (thread[1] === 0) {
-      let r;
-      const p = new Promise<any>((res) => {
-        r = res;
-      });
-      thread[2] = r as any;
-      await p;
+      // Paused
+      if (thread[1] === 0) {
+        let r;
+        const p = new Promise<any>((res) => {
+          r = res;
+        });
+        thread[2] = r as any;
+        await p;
+      }
+
+      // If the fiber got stopped
+      if (thread[1] === 2) {
+        thread[3].forEach(stop);
+        return v;
+      }
+
+      // Continue the fiber
+      t = g.next(v);
     }
 
-    // If the fiber got stopped
-    if (thread[1] === 2) {
-      thread[3].forEach(stop);
-      return v;
-    }
-
-    // Continue the fiber
-    t = g.next(v);
+    thread[1] = 2;
+    return t.value;
+  } finally {
+    thread[3].forEach(stop);
   }
-
-  thread[1] = 2;
-  thread[3].forEach(stop);
-  return t.value;
 };
 
 /**

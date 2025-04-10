@@ -29,7 +29,7 @@ export interface Semaphore {
  * Create a semaphore that allows n accesses
  */
 export const init = (n: number): Semaphore => {
-  const root: QueueNode<() => void> = [null!, null];
+  const root: QueueNode<() => void> = [null] as any;
   return [n, root, root];
 };
 
@@ -45,7 +45,7 @@ export const pause = (s: Semaphore): Promise<void> => {
     const p = new Promise<void>((res) => {
       r = res;
     });
-    s[1] = s[1][1] = [r!, null];
+    s[1] = s[1][0] = [null, r!];
     return p;
   }
 
@@ -57,7 +57,7 @@ export const pause = (s: Semaphore): Promise<void> => {
  */
 export const signal = (s: Semaphore): void => {
   // Unlock for 1 task
-  if (s[0] < 0) (s[2] = s[2][1]!)[0]();
+  if (s[0] < 0) (s[2] = s[2][0]!)[1]();
 
   s[0]++;
 };
@@ -79,7 +79,7 @@ export const wrap =
       const p = new Promise<void>((res) => {
         r = res;
       });
-      s[1] = s[1][1] = [r!, null];
+      s[1] = s[1][0] = [null, r!];
       await p;
     }
 

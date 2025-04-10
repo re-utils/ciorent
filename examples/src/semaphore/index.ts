@@ -3,10 +3,10 @@ import * as cio from 'ciorent';
 
 const task = semaphore.wrap(
   async (task: number) => {
-    for (let i = 1; i <= 5; i++) {
-      console.log('Task', task, 'iteration', i);
+    console.log('Task', task, 'started');
+
+    for (let i = 1; i <= 5; i++)
       await cio.pause;
-    }
 
     console.log('Task', task, 'end');
   }

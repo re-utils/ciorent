@@ -66,7 +66,7 @@ export const concurrent = <const T extends any[], const R>(
 
 /**
  * Drop function calls until it doesn't get called for a specific period.
- * @param f - The target function to debounce
+ * @param f - The target function to debounce (it must not throw errors)
  * @param ms - The time period in milliseconds
  */
 export const debounce = <const Args extends any[]>(
@@ -84,7 +84,7 @@ export const debounce = <const Args extends any[]>(
 
 /**
  * Drop function calls for a specific period
- * @param f - The target function to rate limit
+ * @param f - The target function to rate limit (it must not throw errors)
  * @param ms - The time period in milliseconds
  * @param limit - The call limit in the time period
  */
@@ -98,24 +98,21 @@ export const rateLimit = <const Args extends any[]>(
   return (...a) => {
     if (limit > 0) {
       limit--;
-      try {
-        f(...a);
-      } finally {
-        setTimeout(call, ms);
-      }
+      f(...a);
+      setTimeout(call, ms);
     }
   };
 };
 
 type QueueNode<T> = [
+  next: QueueNode<T> | null,
   resolve: (v: any) => void,
-  value: T,
-  next: QueueNode<T> | null
+  value: T
 ];
 
 /**
  * Throttle function execution for a time period
- * @param f - The function to throttle
+ * @param f - The function to throttle (it must not throw errors)
  * @param ms - The time in milliseconds
  * @param limit - The call limit in the time period
  */
@@ -124,14 +121,14 @@ export const throttle = <const Args extends any[], const R>(
   ms: number,
   limit: number
 ): ((...args: Args) => Promise<Awaited<R>>) => {
-  let head: QueueNode<Args> = [null!, null!, null];
+  let head: QueueNode<Args> = [null] as any;
   let tail = head;
 
   const unlock = () => {
     if (tail !== head) {
-      tail = tail[2]!;
+      tail = tail[0]!;
       // Resolve tail promise
-      tail[0](f(...tail[1]));
+      tail[1](f(...tail[2]));
       // Unlock another item
       setTimeout(unlock, ms);
     } else limit++;
@@ -142,7 +139,7 @@ export const throttle = <const Args extends any[], const R>(
     if (limit === 0) {
       let r: (v: R) => void;
       const p = new Promise((res) => { r = res });
-      head = head[2] = [r!, a, null];
+      head = head[0] = [null!, r!, a];
       return p;
     }
 
