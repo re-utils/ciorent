@@ -4,9 +4,9 @@ import { cd, EXAMPLES } from './utils';
 let task = process.argv[2];
 if (task == null) throw new Error('An example must be specified!');
 
-if (!existsSync(task + '.ts')) {
+if (!existsSync(EXAMPLES + '/' + task + '.ts')) {
   task += '/index';
-  if (!existsSync(task + '.ts'))
+  if (!existsSync(EXAMPLES + '/' + task + '.ts'))
     throw new Error('Cannot find specified example to run!');
 }
 console.log('Running', task);

@@ -3,7 +3,7 @@
  */
 
 /**
- * Continue running the function on next microtask.
+ * Yield back to main thread.
  *
  * You can `await` this **occasionally** in an expensive synchronous operation to avoid
  *
@@ -12,7 +12,7 @@
 export const pause: Promise<void> = Promise.resolve();
 
 /**
- * Sleep for a duration
+ * Sleep for a duration.
  * @param ms - Sleep duration in milliseconds
  */
 export const sleep: (ms: number) => Promise<void> =
@@ -24,8 +24,11 @@ export const sleep: (ms: number) => Promise<void> =
     }));
 
 const sharedBuf = new Int32Array(new SharedArrayBuffer(4));
+
 /**
  * Sleep for a duration synchronously.
+ *
+ * This method blocks the current thread.
  *
  * On the browser it only works in workers.
  * @param ms - Sleep duration in milliseconds
@@ -91,15 +94,20 @@ export const debounce = <const Args extends any[]>(
 export const rateLimit = <const Args extends any[]>(
   f: (...args: Args) => any,
   ms: number,
-  limit: number
+  limit: number,
 ): ((...args: Args) => void) => {
-  const call = () => { limit++; }
+  let cur = limit;
+  const unlock = () => {
+    cur = limit;
+  };
 
   return (...a) => {
-    if (limit > 0) {
-      limit--;
+    if (cur > 0) {
+      // Only setTimeout when necessary
+      if (cur === 1) setTimeout(unlock, ms);
+
+      cur--;
       f(...a);
-      setTimeout(call, ms);
     }
   };
 };
@@ -107,7 +115,7 @@ export const rateLimit = <const Args extends any[]>(
 type QueueNode<T> = [
   next: QueueNode<T> | null,
   resolve: (v: any) => void,
-  value: T
+  value: T,
 ];
 
 /**
@@ -119,32 +127,46 @@ type QueueNode<T> = [
 export const throttle = <const Args extends any[], const R>(
   f: (...args: Args) => R,
   ms: number,
-  limit: number
+  limit: number,
 ): ((...args: Args) => Promise<Awaited<R>>) => {
   let head: QueueNode<Args> = [null] as any;
   let tail = head;
 
+  let cur = limit;
+
   const unlock = () => {
-    if (tail !== head) {
+    cur = limit;
+
+    // Resolve items in the queue
+    while (cur > 0) {
+      // Queue has no item
+      if (tail === head) return;
+
+      cur--;
       tail = tail[0]!;
       // Resolve tail promise
       tail[1](f(...tail[2]));
-      // Unlock another item
-      setTimeout(unlock, ms);
-    } else limit++;
-  }
+    }
+
+    setTimeout(unlock, ms);
+  };
 
   // @ts-ignore
   return (...a) => {
-    if (limit === 0) {
+    if (cur === 1) {
+      // Last task of this time frame
+      setTimeout(unlock, ms);
+    } else if (cur === 0) {
+      // Queue the task when necessary
       let r: (v: R) => void;
-      const p = new Promise((res) => { r = res });
+      const p = new Promise((res) => {
+        r = res;
+      });
       head = head[0] = [null!, r!, a];
       return p;
     }
 
-    limit--;
-    setTimeout(unlock, ms);
+    cur--;
     return f(...a);
   };
-}
+};

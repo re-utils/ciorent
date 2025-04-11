@@ -2,7 +2,7 @@ import * as cio from 'ciorent';
 
 // Allow 1 call in 500ms
 const fn = cio.rateLimit((id: number) => {
-  console.log('ID:', id);
+  console.log('Call ' + id + ':', Math.floor(performance.now()) + 'ms');
 }, 500, 1);
 
 fn(1); // fn(1) gets executed
