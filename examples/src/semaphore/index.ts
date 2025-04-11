@@ -5,8 +5,7 @@ import * as cio from 'ciorent';
 const sem = semaphore.init(2);
 
 const task = async (id: number) => {
-  // Acquire the semaphore for this task
-  // Or wait for the semaphore to be available
+  // Acquire the semaphore or wait for the semaphore to be available
   await semaphore.pause(sem);
 
   console.log('Task', id, 'started');
