@@ -58,19 +58,19 @@ export const pause = (s: Semaphore): Promise<void> => {
 export const signal = (s: Semaphore): void => {
   // Unlock for 1 task
   if (s[0] < 0) (s[2] = s[2][0]!)[1]();
-
   s[0]++;
 };
 
 /**
- * Wrap a task to bind to a custom semaphore later
+ * Bind a task to a semaphore
  */
-export const wrap =
-  <Args extends any[], Return extends Promise<any>>(
-    f: (...args: Args) => Return,
-  ): ((s: Semaphore, ...a: Args) => Return) =>
+export const bind =
+  <T extends (...args: any[]) => Promise<any>>(
+    f: T,
+    s: Semaphore
+  ): T =>
   // @ts-expect-error It is valid
-  async (s, ...a) => {
+  async (...a) => {
     // Fast path
     s[0]--;
     if (s[0] < 0) {
@@ -86,6 +86,8 @@ export const wrap =
     try {
       return await f(...a);
     } finally {
-      signal(s);
+      // Unlock for 1 task
+      if (s[0] < 0) (s[2] = s[2][0]!)[1]();
+      s[0]++;
     }
   };

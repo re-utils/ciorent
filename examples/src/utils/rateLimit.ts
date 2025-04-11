@@ -1,12 +1,12 @@
 import * as cio from 'ciorent';
 
-// Allow 1 call in 500ms
+// Allow 2 calls in 500ms, other calls are dropped
 const fn = cio.rateLimit((id: number) => {
   console.log('Call ' + id + ':', Math.floor(performance.now()) + 'ms');
-}, 500, 1);
+}, 500, 2);
 
-fn(1); // fn(1) gets executed
-await cio.sleep(100);
-fn(2); // fn(2) gets skipped
-await cio.sleep(500);
-fn(3); // fn(3) gets executed
+// Some calls will be dropped
+for (let i = 0; i < 8; i++) {
+  fn(i);
+  await cio.sleep(400);
+}
