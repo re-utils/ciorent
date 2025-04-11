@@ -3,33 +3,18 @@
  */
 
 /**
- * Check whether the fiber is paused
+ * Describe a fiber process
  */
-export const paused = (t: Thread): boolean => t[1] === 0;
-
-/**
- * Check whether the fiber is running
- */
-export const running = (t: Thread): boolean => t[1] === 1;
-
-/**
- * Check whether the fiber is done
- */
-export const done = (t: Thread): boolean => t[1] === 2;
-
-/**
- * Describe a fiber
- */
-export interface Thread<T = unknown, TReturn = unknown> {
+export interface Process<TReturn = unknown> {
   /**
    * The waiting promise
    */
-  0: Promise<T | TReturn>;
+  0: Promise<TReturn | undefined>;
 
   /**
    * Fiber status
    */
-  1: 0 | 1 | 2;
+  1: 0 | 1 | 2 | 3;
 
   /**
    * Callback to continue running the fiber
@@ -37,20 +22,40 @@ export interface Thread<T = unknown, TReturn = unknown> {
   2: null | (() => void);
 
   /**
-   * Bounded threads
+   * Bounded fibers
    */
-  3: Thread[];
+  3: Process[];
 }
 
 /**
  * Describe a fiber runtime
  */
-export type Runtime = <const T, const TReturn, const Args extends any[]>(
-  gen: (thread: Thread<T, TReturn>, ...args: Args) => Generator<T, TReturn>,
+export type Runtime = <const TReturn, const Args extends any[]>(
+  gen: (proc: Process<TReturn>, ...args: Args) => Generator<any, TReturn>,
   ...args: Args
-) => Thread<T, TReturn>;
+) => Process<TReturn>;
 
-const invoke = async (g: Generator, thread: Thread) => {
+/**
+ * Check whether the fiber is paused
+ */
+export const paused = (t: Process): boolean => t[1] === 0;
+
+/**
+ * Check whether the fiber is running
+ */
+export const running = (t: Process): boolean => t[1] === 1;
+
+/**
+ * Check whether the fiber is finished
+ */
+export const done = (t: Process): boolean => t[1] === 2;
+
+/**
+ * Check whether the fiber is interrupted
+ */
+export const stopped = (t: Process): boolean => t[1] === 3;
+
+const invoke = async (g: Generator, thread: Process) => {
   try {
     let t = g.next();
 
@@ -68,8 +73,8 @@ const invoke = async (g: Generator, thread: Thread) => {
       }
 
       // If the fiber got stopped
-      if (thread[1] === 2)
-        return v;
+      if (thread[1] === 3)
+        return;
 
       // Continue the fiber
       t = g.next(v);
@@ -87,7 +92,7 @@ const invoke = async (g: Generator, thread: Thread) => {
  * @param f
  */
 export const fn = <
-  const Fn extends (thread: Thread, ...args: any[]) => Generator,
+  const Fn extends (thread: Process, ...args: any[]) => Generator,
 >(
   f: Fn,
 ): Fn => f;
@@ -97,7 +102,7 @@ export const fn = <
  * @param g
  */
 export const spawn: Runtime = (f, ...args) => {
-  const thread = [null as any as Promise<any>, 1, null, []] as Thread;
+  const thread = [null as any as Promise<any>, 1, null, []] as Process;
   thread[0] = invoke(f(thread as any, ...args), thread);
   return thread as any;
 };
@@ -106,7 +111,7 @@ export const spawn: Runtime = (f, ...args) => {
  * Pause the execution of a fiber
  * @param t
  */
-export const pause = (t: Thread): void => {
+export const pause = (t: Process): void => {
   if (t[1] === 1) t[1] = 0;
 };
 
@@ -114,7 +119,7 @@ export const pause = (t: Thread): void => {
  * Resume the execution of a fiber
  * @param t
  */
-export const resume = (t: Thread): void => {
+export const resume = (t: Process): void => {
   if (t[1] === 0) {
     t[1] = 1;
     // Can be a no-op
@@ -126,36 +131,37 @@ export const resume = (t: Thread): void => {
  * Stop the execution of a fiber
  * @param t
  */
-export const stop = (t: Thread): void => {
-  if (t[1] === 0) {
-    t[1] = 2;
+export const stop = (t: Process): void => {
+  if (t[1] === 0)
     // Can be a no-op
     t[2]?.();
-  } else t[1] = 2;
+
+  // This always execute later
+  t[1] = 3;
 };
 
 /**
  * Wait for a fiber and retrieve its result
  * @param t
  */
-export function* join<T extends Thread>(
+export function* join<T extends Process>(
   t: T,
-): Generator<Awaited<T[1]>, Awaited<T[1]>> {
-  return yield t[1] as any;
+): Generator<Awaited<T[0]>, Awaited<T[0]>> {
+  return yield t[0] as any;
 }
 
 /**
  * Wait for a fiber to finish and retrieve its result
  * @param t
  */
-export const finish = <T extends Thread>(t: T): T[1] => t[1];
+export const finish = <T extends Process>(t: T): T[3] => t[3];
 
 /**
  * Mount child fiber lifetime to parent lifetime
  * @param child
  * @param parent
  */
-export const mount = (child: Thread, parent: Thread): void => {
+export const mount = (child: Process, parent: Process): void => {
   parent[3].push(child);
 };
 
@@ -164,7 +170,7 @@ export const mount = (child: Thread, parent: Thread): void => {
  * @param t
  * @param signal
  */
-export const control = (t: Thread, signal: AbortSignal): void => {
+export const control = (t: Process, signal: AbortSignal): void => {
   signal.addEventListener('abort', () => {
     stop(t);
   });

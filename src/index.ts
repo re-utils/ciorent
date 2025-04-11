@@ -112,12 +112,6 @@ export const rateLimit = <const Args extends any[]>(
   };
 };
 
-type QueueNode<T> = [
-  next: QueueNode<T> | null,
-  resolve: (v: any) => void,
-  value: T,
-];
-
 /**
  * Throttle function execution for a time period
  * @param f - The function to throttle (it must not throw errors)
@@ -129,6 +123,12 @@ export const throttle = <const Args extends any[], const R>(
   ms: number,
   limit: number,
 ): ((...args: Args) => Promise<Awaited<R>>) => {
+  type QueueNode<T> = [
+    next: QueueNode<T> | null,
+    resolve: (v: any) => void,
+    value: T,
+  ];
+
   let head: QueueNode<Args> = [null] as any;
   let tail = head;
 
