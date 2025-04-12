@@ -1,5 +1,5 @@
 import * as semaphore from 'ciorent/semaphore';
-import * as cio from 'ciorent';
+import * as co from 'ciorent';
 
 // Only allow 2 task to run concurrently
 const sem = semaphore.init(2);
@@ -11,7 +11,7 @@ const task = async (id: number) => {
   console.log('Task', id, 'started');
 
   // Let the main thread schedules other tasks
-  for (let i = 1; i <= 5; i++) await cio.pause;
+  for (let i = 1; i <= 5; i++) await co.pause;
 
   console.log('Task', id, 'end');
 
@@ -20,4 +20,4 @@ const task = async (id: number) => {
 }
 
 // Try to run 5 tasks concurrently
-cio.concurrent(5, task);
+co.spawn(5, task);

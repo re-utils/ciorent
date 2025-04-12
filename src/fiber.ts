@@ -36,22 +36,22 @@ export type Runtime = <const TReturn, const Args extends any[]>(
 ) => Process<TReturn>;
 
 /**
- * Check whether the fiber is paused
+ * Check whether the fiber has been paused
  */
 export const paused = (t: Process): boolean => t[1] === 0;
 
 /**
  * Check whether the fiber is running
  */
-export const running = (t: Process): boolean => t[1] === 1;
+export const resumed = (t: Process): boolean => t[1] === 1;
 
 /**
- * Check whether the fiber is finished
+ * Check whether the fiber has finished
  */
 export const done = (t: Process): boolean => t[1] === 2;
 
 /**
- * Check whether the fiber is interrupted
+ * Check whether the fiber has been interrupted
  */
 export const stopped = (t: Process): boolean => t[1] === 3;
 

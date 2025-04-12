@@ -1,13 +1,13 @@
 import * as topic from 'ciorent/topic';
-import * as cio from 'ciorent';
+import * as co from 'ciorent';
 
 const messages = topic.init<number>();
 
 // A task that publish messages
 const publisher = async () => {
   for (let i = 0; i < 3; i++) {
-    await cio.sleep(100);
-    topic.pub(messages, i);
+    await co.sleep(100);
+    topic.publish(messages, i);
   }
 
   // Resolve all waiting promises
@@ -16,8 +16,8 @@ const publisher = async () => {
 }
 
 // Spawn 3 tasks that recieve messages
-cio.concurrent(3, async (id: number) => {
-  const sub = topic.sub(messages);
+co.spawn(3, async (id: number) => {
+  const sub = topic.subscribe(messages);
 
   while (true) {
     // Block until the value is sent

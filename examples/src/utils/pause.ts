@@ -1,4 +1,4 @@
-import * as cio from 'ciorent';
+import * as co from 'ciorent';
 
 // Expensive sync task
 const task1 = async () => {
@@ -6,7 +6,7 @@ const task1 = async () => {
 
   // Yield control back to the runtime, allowing it to
   // schedule other tasks
-  await cio.pause;
+  await co.pause;
 
   // Simulate heavy operation
   for (let i = 0; i < (Math.random() + 15) * 1e6; i++)

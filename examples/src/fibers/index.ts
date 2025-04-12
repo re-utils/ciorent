@@ -1,11 +1,11 @@
-import * as cio from 'ciorent';
+import * as co from 'ciorent';
 import * as fiber from 'ciorent/fiber';
 
 const f1 = fiber.fn(function* () {
   console.log('Fiber 1 started');
 
   // Wait for a promise
-  yield cio.sleep(1000);
+  yield co.sleep(1000);
 
   console.log('Fiber 1 done');
   return Math.random();

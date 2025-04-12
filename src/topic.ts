@@ -43,13 +43,13 @@ export interface Subscriber<T extends {}> {
  * Subscribe to a topic
  * @param t
  */
-export const sub = <T extends {}>(t: Topic<T>): Subscriber<T> => [t, t[0]];
+export const subscribe = <T extends {}>(t: Topic<T>): Subscriber<T> => [t, t[0]];
 
 /**
- * Subscribe to a topic
+ * Publish to a topic
  * @param t
  */
-export const pub = <T extends {}>(t: Topic<T>, value: T): void => {
+export const publish = <T extends {}>(t: Topic<T>, value: T): void => {
   const head = (t[0] = t[0][0] = [null, value]);
 
   // Flush the waiting queue

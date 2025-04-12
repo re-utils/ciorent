@@ -53,18 +53,18 @@ export const sequential = async <const T extends any[]>(
 };
 
 /**
- * Spawn n tasks that runs concurrently
+ * Spawn n concurrent tasks
  * @param n
  * @param task - The function to run
  */
-export const concurrent = <const T extends any[], const R>(
+export const spawn = <const T extends any[], const R>(
   n: number,
   task: (...args: [...T, id: number]) => Promise<R>,
   ...args: T
-): Promise<R[]> => {
+): Promise<R>[] => {
   const arr = new Array(n);
   for (let i = 0; i < n; i++) arr[i] = task(...args, i);
-  return Promise.all(arr);
+  return arr;
 };
 
 /**
@@ -76,7 +76,6 @@ export const debounce = <const Args extends any[]>(
   f: (...args: Args) => any,
   ms: number,
 ): ((...args: Args) => void) => {
-  // Expire time for debounce
   let id: any;
 
   return (...a) => {
@@ -97,9 +96,7 @@ export const rateLimit = <const Args extends any[]>(
   limit: number,
 ): ((...args: Args) => void) => {
   let cur = limit;
-  const unlock = () => {
-    cur = limit;
-  };
+  const unlock = () => { cur = limit; };
 
   return (...a) => {
     if (cur > 0) {
@@ -123,13 +120,14 @@ export const throttle = <const Args extends any[], const R>(
   ms: number,
   limit: number,
 ): ((...args: Args) => Promise<Awaited<R>>) => {
-  type QueueNode<T> = [
-    next: QueueNode<T> | null,
+  type QueueNode = [
+    next: QueueNode | null,
     resolve: (v: any) => void,
-    value: T,
+    value: Args,
   ];
 
-  let head: QueueNode<Args> = [null] as any;
+  // Promise resolve queue
+  let head: QueueNode = [null] as any;
   let tail = head;
 
   let cur = limit;

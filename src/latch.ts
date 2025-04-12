@@ -36,9 +36,9 @@ export const open = (latch: Latch): void => {
 };
 
 /**
- * Re-close a latch
+ * Close a latch
  */
-export const reset = (latch: Latch): void => {
+export const close = (latch: Latch): void => {
   if (latch[0] === endPromise) {
     let r;
     latch[0] = new Promise<void>((res) => {

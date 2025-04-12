@@ -1,11 +1,11 @@
 import * as channel from 'ciorent/channel';
-import * as cio from 'ciorent';
+import * as co from 'ciorent';
 
 const c = channel.init<number>();
 
 const run = async () => {
   for (let i = 0; i < 5; i++) {
-    await cio.sleep(100);
+    await co.sleep(100);
     channel.send(c, i);
     console.log('Sent', i);
   }
