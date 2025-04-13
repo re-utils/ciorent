@@ -46,9 +46,9 @@ export const paused = (t: Process): boolean => t[1] === 0;
 export const resumed = (t: Process): boolean => t[1] === 1;
 
 /**
- * Check whether the fiber has finished
+ * Check whether the fiber has completed
  */
-export const done = (t: Process): boolean => t[1] === 2;
+export const completed = (t: Process): boolean => t[1] === 2;
 
 /**
  * Check whether the fiber has been interrupted
@@ -83,6 +83,8 @@ const invoke = async (g: Generator, thread: Process) => {
     thread[1] = 2;
     return t.value;
   } finally {
+    // Stopped cuz of an error
+    if (thread[1] !== 2) thread[1] = 3;
     thread[3].forEach(stop);
   }
 };
@@ -132,12 +134,12 @@ export const resume = (t: Process): void => {
  * @param t
  */
 export const stop = (t: Process): void => {
-  if (t[1] === 0)
-    // Can be a no-op
-    t[2]?.();
-
-  // This always execute later
-  t[1] = 3;
+  if (t[1] !== 2) {
+    if (t[1] === 0)
+      // Can be a no-op
+      t[2]?.();
+    t[1] = 3;
+  }
 };
 
 /**
@@ -154,7 +156,7 @@ export function* join<T extends Process>(
  * Wait for a fiber to finish and retrieve its result
  * @param t
  */
-export const finish = <T extends Process>(t: T): T[3] => t[3];
+export const done = <T extends Process>(t: T): T[0] => t[0];
 
 /**
  * Mount child fiber lifetime to parent lifetime

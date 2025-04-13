@@ -19,10 +19,6 @@ export default config({
       heading: 'Debounce',
       desc: 'Postpones execution until after an idle period.',
     },
-    rateLimit: {
-      heading: 'Rate Limit',
-      desc: 'Limits the number of calls within a time window.',
-    },
     throttle: {
       heading: 'Throttle',
       desc: 'Executes a function at a regular interval.',

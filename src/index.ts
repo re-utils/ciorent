@@ -85,31 +85,6 @@ export const debounce = <const Args extends any[]>(
 };
 
 /**
- * Drop function calls for a specific period
- * @param f - The target function to rate limit (it must not throw errors)
- * @param ms - The time period in milliseconds
- * @param limit - The call limit in the time period
- */
-export const rateLimit = <const Args extends any[]>(
-  f: (...args: Args) => any,
-  ms: number,
-  limit: number,
-): ((...args: Args) => void) => {
-  let cur = limit;
-  const unlock = () => { cur = limit; };
-
-  return (...a) => {
-    if (cur > 0) {
-      // Only setTimeout when necessary
-      if (cur === 1) setTimeout(unlock, ms);
-
-      cur--;
-      f(...a);
-    }
-  };
-};
-
-/**
  * Throttle function execution for a time period
  * @param f - The function to throttle (it must not throw errors)
  * @param ms - The time in milliseconds
@@ -132,13 +107,19 @@ export const throttle = <const Args extends any[], const R>(
 
   let cur = limit;
 
+  // Current timeout
+  let scheduled = false;
+
   const unlock = () => {
     cur = limit;
 
     // Resolve items in the queue
     while (cur > 0) {
       // Queue has no item
-      if (tail === head) return;
+      if (tail === head) {
+        scheduled = false;
+        return;
+      }
 
       cur--;
       tail = tail[0]!;
@@ -151,10 +132,7 @@ export const throttle = <const Args extends any[], const R>(
 
   // @ts-ignore
   return (...a) => {
-    if (cur === 1) {
-      // Last task of this time frame
-      setTimeout(unlock, ms);
-    } else if (cur === 0) {
+    if (cur === 0) {
       // Queue the task when necessary
       let r: (v: R) => void;
       const p = new Promise((res) => {
@@ -162,6 +140,11 @@ export const throttle = <const Args extends any[], const R>(
       });
       head = head[0] = [null!, r!, a];
       return p;
+    }
+
+    if (!scheduled) {
+      scheduled = true;
+      setTimeout(unlock, ms);
     }
 
     cur--;

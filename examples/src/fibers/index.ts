@@ -2,25 +2,51 @@ import * as co from 'ciorent';
 import * as fiber from 'ciorent/fiber';
 
 const f1 = fiber.fn(function* () {
-  console.log('Fiber 1 started');
-
   // Wait for a promise
   yield co.sleep(1000);
 
-  console.log('Fiber 1 done');
+  // Wait for a promise and return its result
+  const res = yield* fiber.unwrap(Promise.resolve(1));
+  console.log('Fiber 1 recieved:', res);
+
   return Math.random();
 });
 
-fiber.spawn(function* (proc) {
-  console.log('Fiber 2 started');
+{
+  const main = fiber.spawn(function* (proc) {
+    // Start f1, wait for it to finish and get the result
+    const res = yield* fiber.join(fiber.spawn(f1));
+    console.log('Fiber 2 recieved:', res);
 
-  // Start f1, wait for it to finish and get the result
-  const res = yield* fiber.join(fiber.spawn(f1));
-  console.log('Fiber 1 result:', res);
+    // Start f1 and make its lifetime depends on current fiber
+    const childProc = fiber.spawn(f1);
+    fiber.mount(childProc, proc);
+  });
 
-  // Start f1 and make its lifetime depends on current fiber
-  fiber.mount(fiber.spawn(f1), proc);
+  console.log('Fiber 2 started:', fiber.resumed(main));
 
-  // The runtime will interrupt f1
-  console.log('Fiber 2 done');
-});
+  // Pause the current fiber process
+  fiber.pause(main);
+  console.log('Fiber 2 is paused:', fiber.paused(main));
+
+  // Resume the fiber
+  fiber.resume(main);
+  console.log('Fiber 2 is resumed:', fiber.resumed(main));
+
+  // Wait for the fiber process to finish
+  await fiber.done(main);
+
+  // Check finish status
+  console.log('Fiber 2 completed', fiber.completed(main));
+}
+
+{
+  console.log('------------------------');
+
+  const main = fiber.spawn(f1);
+  console.log('Fiber 1 started:', fiber.resumed(main));
+
+  // Stop a fiber
+  fiber.stop(main);
+  console.log('Fiber 1 stopped:', fiber.stopped(main));
+}
