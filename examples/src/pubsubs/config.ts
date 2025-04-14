@@ -5,5 +5,6 @@ export default config({
   desc: 'A fast, simple publish-subscribe API.',
   examples: {
     index: {}
-  }
+  },
+  priority: 0
 });

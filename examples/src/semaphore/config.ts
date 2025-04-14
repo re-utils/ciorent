@@ -5,5 +5,6 @@ export default config({
   desc: 'Semaphore is a concurrency primitive used to control access to a common resource by multiple processes.',
   examples: {
     index: {}
-  }
+  },
+  priority: 1
 });

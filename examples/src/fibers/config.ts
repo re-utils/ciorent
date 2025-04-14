@@ -5,5 +5,6 @@ export default config({
   desc: 'Virtual threads with more controlled execution.',
   examples: {
     index: {}
-  }
+  },
+  priority: Number.NEGATIVE_INFINITY
 });
