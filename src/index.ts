@@ -88,7 +88,6 @@ export const debounce = <const Args extends any[]>(
 
 /**
  * Throttle function execution for a time period
- * @param f - The function to throttle (it must not throw errors)
  * @param ms - The time in milliseconds
  * @param limit - The call limit in the time period
  */
