@@ -1,3 +1,7 @@
+/**
+ * @module Lock utilities
+ */
+
 import type { Node as QueueNode } from './queue.js';
 
 /**
@@ -18,7 +22,6 @@ export interface Lock<T = any> {
 /**
  * Acquire an item
  * @param lock
- * @param value
  */
 export const acquire = <T>(lock: Lock<T>): Promise<T | undefined> =>
   new Promise((res) => {

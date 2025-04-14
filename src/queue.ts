@@ -1,5 +1,4 @@
 /**
- * @private
  * @module Queue utilities
  */
 
