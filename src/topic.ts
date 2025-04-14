@@ -43,7 +43,10 @@ export interface Subscriber<T extends {}> {
  * Subscribe to a topic
  * @param t
  */
-export const subscribe = <T extends {}>(t: Topic<T>): Subscriber<T> => [t, t[0]];
+export const subscribe = <T extends {}>(t: Topic<T>): Subscriber<T> => [
+  t,
+  t[0],
+];
 
 /**
  * Publish to a topic

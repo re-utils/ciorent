@@ -2,6 +2,8 @@
  * @module Other utilities
  */
 
+import type { QueueNode } from './fixed-queue.js';
+
 /**
  * Yield back to main thread.
  *
@@ -40,7 +42,7 @@ export const sleepSync: (ms: number) => void =
   });
 
 /**
- * Spawn n tasks that runs sequentially
+ * Spawn n sequential task
  * @param n
  * @param task - The function to run
  */
@@ -90,19 +92,9 @@ export const debounce = <const Args extends any[]>(
  * @param ms - The time in milliseconds
  * @param limit - The call limit in the time period
  */
-export const throttle = <const Args extends any[], const R>(
-  f: (...args: Args) => R,
-  ms: number,
-  limit: number,
-): ((...args: Args) => Promise<Awaited<R>>) => {
-  type QueueNode = [
-    next: QueueNode | null,
-    resolve: (v: any) => void,
-    value: Args,
-  ];
-
+export const throttle = (ms: number, limit: number): (() => Promise<void>) => {
   // Promise resolve queue
-  let head: QueueNode = [null] as any;
+  let head: QueueNode<() => void> = [null] as any;
   let tail = head;
 
   let cur = limit;
@@ -122,23 +114,21 @@ export const throttle = <const Args extends any[], const R>(
       }
 
       cur--;
-      tail = tail[0]!;
       // Resolve tail promise
-      tail[1](f(...tail[2]));
+      (tail = tail[0]!)[1]();
     }
 
     setTimeout(unlock, ms);
   };
 
-  // @ts-ignore
-  return (...a) => {
+  return () => {
     if (cur === 0) {
       // Queue the task when necessary
-      let r: (v: R) => void;
-      const p = new Promise((res) => {
+      let r: () => void;
+      const p = new Promise<void>((res) => {
         r = res;
       });
-      head = head[0] = [null!, r!, a];
+      head = head[0] = [null!, r!];
       return p;
     }
 
@@ -148,6 +138,6 @@ export const throttle = <const Args extends any[], const R>(
     }
 
     cur--;
-    return f(...a);
+    return pause;
   };
 };

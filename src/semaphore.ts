@@ -65,10 +65,7 @@ export const signal = (s: Semaphore): void => {
  * Bind a task to a semaphore
  */
 export const bind =
-  <T extends (...args: any[]) => Promise<any>>(
-    f: T,
-    s: Semaphore
-  ): T =>
+  <T extends (...args: any[]) => Promise<any>>(f: T, s: Semaphore): T =>
   // @ts-expect-error It is valid
   async (...a) => {
     // Fast path

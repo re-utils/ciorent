@@ -73,8 +73,7 @@ const invoke = async (g: Generator, thread: Process) => {
       }
 
       // If the fiber got stopped
-      if (thread[1] === 3)
-        return;
+      if (thread[1] === 3) return;
 
       // Continue the fiber
       t = g.next(v);
