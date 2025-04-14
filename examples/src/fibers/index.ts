@@ -14,7 +14,7 @@ const f1 = fiber.fn(function* () {
 
 {
   const main = fiber.spawn(function* (proc) {
-    // Start f1, wait for it to finish and get the result
+    // Start f1, wait for the process to complete and get the result
     const res = yield* fiber.join(fiber.spawn(f1));
     console.log('Fiber 2 recieved:', res);
 
@@ -37,7 +37,7 @@ const f1 = fiber.fn(function* () {
   await fiber.done(main);
 
   // Check finish status
-  console.log('Fiber 2 completed', fiber.completed(main));
+  console.log('Fiber 2 completed:', fiber.completed(main));
 }
 
 {
@@ -47,6 +47,17 @@ const f1 = fiber.fn(function* () {
   console.log('Fiber 1 started:', fiber.resumed(main));
 
   // Stop a fiber
-  fiber.stop(main);
-  console.log('Fiber 1 stopped:', fiber.stopped(main));
+  fiber.interrupt(main);
+  console.log('Fiber 1 interrupted:', fiber.interrupted(main));
+}
+
+{
+  console.log('------------------------');
+
+  const main = fiber.spawn(f1);
+  console.log('Fiber 1 started:', fiber.resumed(main));
+
+  // Timeout a fiber
+  await fiber.timeout(main, 500);
+  console.log('Fiber 1 stopped:', fiber.interrupted(main));
 }

@@ -2,6 +2,8 @@
  * @module Fibers
  */
 
+import { sleep } from './index.js';
+
 /**
  * Describe a fiber process
  */
@@ -53,7 +55,7 @@ export const completed = (t: Process): boolean => t[1] === 2;
 /**
  * Check whether the fiber has been interrupted
  */
-export const stopped = (t: Process): boolean => t[1] === 3;
+export const interrupted = (t: Process): boolean => t[1] === 3;
 
 const invoke = async (g: Generator, thread: Process) => {
   try {
@@ -91,7 +93,7 @@ const invoke = async (g: Generator, thread: Process) => {
 /**
  * Create a fiber function
  * @param f
- */
+ */ AbortSignal;
 export const fn = <
   const Fn extends (thread: Process, ...args: any[]) => Generator,
 >(
@@ -129,16 +131,26 @@ export const resume = (t: Process): void => {
 };
 
 /**
- * Stop the execution of a fiber
+ * Interrupt the execution of a fiber
  * @param t
  */
-export const stop = (t: Process): void => {
+export const interrupt = (t: Process): void => {
   if (t[1] !== 2) {
     if (t[1] === 0)
       // Can be a no-op
       t[2]?.();
     t[1] = 3;
   }
+};
+
+/**
+ * Timeout a fiber
+ * @param t
+ * @param ms
+ */
+export const timeout = async (t: Process, ms: number): Promise<void> => {
+  await sleep(ms);
+  interrupt(t);
 };
 
 /**
@@ -173,7 +185,7 @@ export const mount = (child: Process, parent: Process): void => {
  */
 export const control = (t: Process, signal: AbortSignal): void => {
   signal.addEventListener('abort', () => {
-    stop(t);
+    interrupt(t);
   });
 };
 

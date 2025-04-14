@@ -105,18 +105,18 @@ export const throttle = (ms: number, limit: number): (() => Promise<void>) => {
   const unlock = () => {
     cur = limit;
 
-    // Resolve items in the queue
-    while (cur > 0) {
-      // Queue has no item
-      if (tail === head) {
-        scheduled = false;
-        return;
-      }
+    // Wait for another throttle to re-schedule
+    if (tail === head) {
+      scheduled = false;
+      return;
+    }
 
+    // Resolve items in the queue
+    do {
       cur--;
       // Resolve tail promise
       (tail = tail[0]!)[1]();
-    }
+    } while (cur > 0 && tail !== head);
 
     setTimeout(unlock, ms);
   };
@@ -128,7 +128,7 @@ export const throttle = (ms: number, limit: number): (() => Promise<void>) => {
       const p = new Promise<void>((res) => {
         r = res;
       });
-      head = head[0] = [null!, r!];
+      head = head[0] = [null, r!];
       return p;
     }
 
