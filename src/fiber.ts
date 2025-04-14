@@ -58,6 +58,9 @@ export const completed = (t: Process): boolean => t[1] === 2;
 export const interrupted = (t: Process): boolean => t[1] === 3;
 
 const invoke = async (g: Generator, thread: Process) => {
+  // Wait until next event loop cycle
+  await 0;
+
   try {
     let t = g.next();
 
@@ -86,14 +89,14 @@ const invoke = async (g: Generator, thread: Process) => {
   } finally {
     // Stopped cuz of an error
     if (thread[1] !== 2) thread[1] = 3;
-    thread[3].forEach(stop);
+    thread[3].forEach(interrupt);
   }
 };
 
 /**
  * Create a fiber function
  * @param f
- */ AbortSignal;
+ */
 export const fn = <
   const Fn extends (thread: Process, ...args: any[]) => Generator,
 >(

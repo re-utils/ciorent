@@ -3,62 +3,46 @@
  */
 
 import { pause as resolvedPromise } from './index.js';
-import type { QueueNode } from './fixed-queue.js';
+import type { Node as QueueNode } from './queue.js';
+import {
+  acquire as lockAcquire,
+  release as lockRelease,
+  type Lock,
+} from './lock.js';
 
 /**
  * Describe a semaphore
  */
-export interface Semaphore {
+export interface Semaphore extends Lock<undefined> {
   /**
    * Current remaining process allowed
    */
-  0: number;
-
-  /**
-   * The head of the Promise resolve queue
-   */
-  1: QueueNode<() => void>;
-
-  /**
-   * The tail of the Promise resolve queue
-   */
-  2: QueueNode<() => void>;
+  2: number;
 }
 
 /**
  * Create a semaphore that allows n accesses
  */
 export const init = (n: number): Semaphore => {
-  const root: QueueNode<() => void> = [null] as any;
-  return [n, root, root];
+  const root = [null] as any as QueueNode<() => void>;
+  return [root, root, n];
 };
 
 /**
  * Wait until the semaphore allows access
  */
-export const pause = (s: Semaphore): Promise<void> => {
-  s[0]--;
-
-  if (s[0] < 0) {
-    // Push to the task queue
-    let r;
-    const p = new Promise<void>((res) => {
-      r = res;
-    });
-    s[1] = s[1][0] = [null, r!];
-    return p;
-  }
-
-  return resolvedPromise;
+export const acquire = (s: Semaphore): Promise<void> => {
+  s[2]--;
+  return s[2] >= 0 ? resolvedPromise : lockAcquire(s);
 };
 
 /**
  * Signal to the semaphore to release access
  */
-export const signal = (s: Semaphore): void => {
+export const release = (s: Semaphore): void => {
   // Unlock for 1 task
-  if (s[0] < 0) (s[2] = s[2][0]!)[1]();
-  s[0]++;
+  if (s[2] < 0) lockRelease(s);
+  s[2]++;
 };
 
 /**
@@ -69,22 +53,14 @@ export const bind =
   // @ts-expect-error It is valid
   async (...a) => {
     // Fast path
-    s[0]--;
-    if (s[0] < 0) {
-      // Push to the task queue
-      let r;
-      const p = new Promise<void>((res) => {
-        r = res;
-      });
-      s[1] = s[1][0] = [null, r!];
-      await p;
-    }
+    s[2]--;
+    if (s[2] < 0) await acquire(s);
 
     try {
       return await f(...a);
     } finally {
       // Unlock for 1 task
-      if (s[0] < 0) (s[2] = s[2][0]!)[1]();
-      s[0]++;
+      if (s[2] < 0) release(s);
+      s[2]++;
     }
   };

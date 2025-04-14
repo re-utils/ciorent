@@ -2,10 +2,10 @@
  * @module Other utilities
  */
 
-import type { QueueNode } from './fixed-queue.js';
+import type { Node as QueueNode } from './queue.js';
 
 /**
- * Yield back to main thread.
+ * Continue the execution on next event loop cycle.
  *
  * You can `await` this **occasionally** in an expensive synchronous operation to avoid
  *
@@ -93,7 +93,7 @@ export const debounce = <const Args extends any[]>(
  */
 export const throttle = (ms: number, limit: number): (() => Promise<void>) => {
   // Promise resolve queue
-  let head: QueueNode<() => void> = [null] as any;
+  let head = [null] as any as QueueNode<() => void>;
   let tail = head;
 
   let cur = limit;
@@ -123,12 +123,9 @@ export const throttle = (ms: number, limit: number): (() => Promise<void>) => {
   return () => {
     if (cur === 0) {
       // Queue the task when necessary
-      let r: () => void;
-      const p = new Promise<void>((res) => {
-        r = res;
+      return new Promise<void>((res) => {
+        head = head[0] = [null, res];
       });
-      head = head[0] = [null, r!];
-      return p;
     }
 
     if (!scheduled) {

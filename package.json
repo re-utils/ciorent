@@ -1,6 +1,6 @@
 {
   "name": "ciorent",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "A lightweight, low-overhead concurrency library",
   "homepage": "https://ciorent.netlify.app",
   "repository": {

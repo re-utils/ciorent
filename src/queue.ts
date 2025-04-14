@@ -6,7 +6,7 @@
 /**
  * Describe a fixed-sized queue
  */
-export interface FixedQueue<T extends {}> {
+export interface Fixed<T extends {}> {
   /**
    * Pre-allocated queue
    */
@@ -31,13 +31,16 @@ export interface FixedQueue<T extends {}> {
 /**
  * Describe a queue node (singly linked list node)
  */
-export type QueueNode<T> = [next: QueueNode<T> | null, value: T];
+export interface Node<T> {
+  0: Node<T> | null;
+  1: T;
+}
 
 /**
- * Create a fixed queue.
+ * Create a fixed queue
  * @param n - The queue size
  */
-export const init = <T extends {}>(n: number): FixedQueue<T> => [
+export const fixed = <T extends {}>(n: number): Fixed<T> => [
   new Array(n),
   n,
   -1,

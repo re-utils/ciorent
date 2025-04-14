@@ -2,7 +2,7 @@
  * @module Pubsub
  */
 
-import type { QueueNode } from './fixed-queue.js';
+import type { Node as QueueNode } from './queue.js';
 
 /**
  * Describe a topic
@@ -16,12 +16,7 @@ export interface Topic<T extends {}> {
   /**
    * The waiting subscriber resolves
    */
-  1: ((res?: T) => void)[];
-
-  /**
-   * The waiting subscribers
-   */
-  2: Subscriber<T>[];
+  1: ((res: QueueNode<T>) => void)[];
 }
 
 /**
@@ -53,20 +48,11 @@ export const subscribe = <T extends {}>(t: Topic<T>): Subscriber<T> => [
  * @param t
  */
 export const publish = <T extends {}>(t: Topic<T>, value: T): void => {
-  const head = (t[0] = t[0][0] = [null, value]);
+  const head = t[0] = t[0][0] = [null, value];
 
-  // Flush the waiting queue
-  for (let i = 0, res = t[1], subs = t[2]; i < res.length; i++) {
-    // Resolve the waiting promise
-    res[i](value);
-
-    // Update subscriber tail pointer
-    subs[i][1] = head;
-  }
-
-  // Reset the waiting lists
+  for (let i = 0, res = t[1]; i < res.length; i++)
+    res[i](head);
   t[1] = [];
-  t[2] = [];
 };
 
 /**
@@ -74,20 +60,11 @@ export const publish = <T extends {}>(t: Topic<T>, value: T): void => {
  * @param t
  */
 export const flush = <T extends {}>(t: Topic<T>): void => {
-  const head: QueueNode<T> = (t[0] = [null] as any);
+  const head = t[0] = t[0][0] = [null, undefined!];
 
-  // Flush the waiting queue
-  for (let i = 0, res = t[1], subs = t[2]; i < res.length; i++) {
-    // Resolve the waiting promise
-    res[i]();
-
-    // Update subscriber tail pointer
-    subs[i][1] = head;
-  }
-
-  // Reset the waiting lists
+  for (let i = 0, res = t[1]; i < res.length; i++)
+    res[i](head);
   t[1] = [];
-  t[2] = [];
 };
 
 /**
@@ -105,16 +82,11 @@ export const poll = <T extends {}>(t: Subscriber<T>): T | undefined =>
  * Returns a promise that resolves when the message queue is not empty
  * @param t
  */
-export const recieve = <T extends {}>(
+export const recieve = async <T extends {}>(
   t: Subscriber<T>,
-): Promise<T | undefined> => {
-  if (t[1][0] !== null) return Promise.resolve((t[1] = t[1][0])[1]);
-
-  // Add to waiting promises
-  const topic = t[0];
-
-  topic[2].push(t);
-  return new Promise((res) => {
-    topic[1].push(res);
-  });
-};
+): Promise<T | undefined> => t[1][0] !== null
+  ? (t[1] = t[1][0])[1]
+  : (t[1] = await new Promise<QueueNode<T>>((res) => {
+    // Add to waiting promises
+    t[0][1].push(res);
+  }))[1];

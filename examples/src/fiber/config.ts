@@ -6,5 +6,5 @@ export default config({
   examples: {
     index: {}
   },
-  priority: Number.NEGATIVE_INFINITY
+  priority: 0
 });

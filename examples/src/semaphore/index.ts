@@ -6,7 +6,7 @@ const sem = semaphore.init(2);
 
 const task = async (id: number) => {
   // Acquire the semaphore or wait for the semaphore to be available
-  await semaphore.pause(sem);
+  await semaphore.acquire(sem);
 
   console.log('Task', id, 'started');
 
@@ -16,7 +16,7 @@ const task = async (id: number) => {
   console.log('Task', id, 'end');
 
   // Release the semaphore
-  semaphore.signal(sem);
+  semaphore.release(sem);
 }
 
 // Try to run 5 tasks concurrently

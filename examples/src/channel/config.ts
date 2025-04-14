@@ -6,5 +6,5 @@ export default config({
   examples: {
     index: {}
   },
-  priority: 4
+  priority: 1
 });

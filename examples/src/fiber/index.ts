@@ -1,8 +1,11 @@
 import * as co from 'ciorent';
 import * as fiber from 'ciorent/fiber';
 
+const logTime = (label: string) => console.log(label + ':', Math.floor(performance.now()) + 'ms');
+
 const f1 = fiber.fn(function* () {
   // Wait for a promise
+  console.log('Fiber 1 waiting: 1s');
   yield co.sleep(1000);
 
   // Wait for a promise and return its result
@@ -13,25 +16,20 @@ const f1 = fiber.fn(function* () {
 });
 
 {
+  // Start the fiber process on next event loop cycle
   const main = fiber.spawn(function* (proc) {
     // Start f1, wait for the process to complete and get the result
+    console.log('Fiber 2: joins fiber 1');
     const res = yield* fiber.join(fiber.spawn(f1));
     console.log('Fiber 2 recieved:', res);
 
     // Start f1 and make its lifetime depends on current fiber
+    console.log('Fiber 2: spawns fiber 1');
     const childProc = fiber.spawn(f1);
     fiber.mount(childProc, proc);
   });
 
   console.log('Fiber 2 started:', fiber.resumed(main));
-
-  // Pause the current fiber process
-  fiber.pause(main);
-  console.log('Fiber 2 is paused:', fiber.paused(main));
-
-  // Resume the fiber
-  fiber.resume(main);
-  console.log('Fiber 2 is resumed:', fiber.resumed(main));
 
   // Wait for the fiber process to finish
   await fiber.done(main);
@@ -46,8 +44,12 @@ const f1 = fiber.fn(function* () {
   const main = fiber.spawn(f1);
   console.log('Fiber 1 started:', fiber.resumed(main));
 
-  // Stop a fiber
+  // Interrupt a fiber
   fiber.interrupt(main);
+
+  // Execution will be stopped on the last yield
+  await fiber.done(main);
+
   console.log('Fiber 1 interrupted:', fiber.interrupted(main));
 }
 
@@ -55,9 +57,11 @@ const f1 = fiber.fn(function* () {
   console.log('------------------------');
 
   const main = fiber.spawn(f1);
-  console.log('Fiber 1 started:', fiber.resumed(main));
+  logTime('Fiber 1 started');
 
-  // Timeout a fiber
-  await fiber.timeout(main, 500);
-  console.log('Fiber 1 stopped:', fiber.interrupted(main));
+  // Wait for a time period then interrupt the fiber
+  fiber.timeout(main, 500);
+  await fiber.done(main);
+
+  logTime('Fiber 1 interrupted');
 }
