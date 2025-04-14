@@ -4,7 +4,7 @@ const startFetch = latch.init();
 
 const task = async () => {
   // Blocks until the latch is open
-  await latch.pause(startFetch);
+  await latch.wait(startFetch);
 
   console.log('Start fetching...');
   const res = await fetch('http://example.com');

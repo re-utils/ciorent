@@ -2,48 +2,26 @@
  * @module Latches
  */
 
-import { nextTick as endPromise } from './index.js';
+import { init as deferInit, wait as deferWait, type Defer } from './defer.js';
 
 /**
  * Describe a latch
  */
-export type Latch = [pause: Promise<void>, open: () => void];
+export type Latch = Defer<void>;
 
 /**
  * Create a latch
  */
-export const init = (): Latch => {
-  let r;
-  return [
-    new Promise<void>((res) => {
-      r = res;
-    }),
-    r!,
-  ];
-};
+export const init: () => Latch = deferInit;
 
 /**
- * Pause until a latch is opened
+ * Wait until a latch is opened
  */
-export const pause = (latch: Latch): Promise<void> => latch[0];
+export const wait: (d: Latch) => Promise<void> = deferWait;
 
 /**
  * Open a latch
  */
 export const open = (latch: Latch): void => {
   latch[1]();
-  latch[0] = endPromise;
-};
-
-/**
- * Close a latch
- */
-export const close = (latch: Latch): void => {
-  if (latch[0] === endPromise) {
-    let r;
-    latch[0] = new Promise<void>((res) => {
-      r = res;
-    });
-    latch[1] = r!;
-  }
 };
