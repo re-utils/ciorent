@@ -11,7 +11,7 @@ import type { Node as QueueNode } from './queue.js';
  *
  * blocking the main thread and let other asynchronous task to run.
  */
-export const pause: Promise<void> = Promise.resolve();
+export const nextTick: Promise<void> = Promise.resolve();
 
 /**
  * Sleep for a duration.
@@ -134,6 +134,6 @@ export const throttle = (ms: number, limit: number): (() => Promise<void>) => {
     }
 
     cur--;
-    return pause;
+    return nextTick;
   };
 };

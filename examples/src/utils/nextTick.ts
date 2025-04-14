@@ -6,7 +6,7 @@ const task1 = async () => {
 
   // Yield control back to the runtime, allowing it to
   // schedule other tasks
-  await co.pause;
+  await co.nextTick;
 
   // Simulate heavy operation
   for (let i = 0; i < (Math.random() + 15) * 1e6; i++)

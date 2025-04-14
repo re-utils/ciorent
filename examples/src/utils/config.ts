@@ -19,9 +19,9 @@ export default config({
       heading: 'Throttle',
       desc: 'Executes a function at a regular interval.',
     },
-    pause: {
-      heading: 'Pausing',
-      desc: 'Delay the execution of a function for other asynchronous tasks to run.'
+    nextTick: {
+      heading: 'Yield',
+      desc: 'Continue the execution on next tick, allowing other asynchronous tasks to run.'
     }
   },
   priority: Number.POSITIVE_INFINITY

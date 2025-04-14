@@ -2,7 +2,7 @@
  * @module Semaphores
  */
 
-import { pause as resolvedPromise } from './index.js';
+import { nextTick as resolvedPromise } from './index.js';
 import type { Node as QueueNode } from './queue.js';
 import {
   acquire as lockAcquire,

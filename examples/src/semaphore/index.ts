@@ -11,7 +11,7 @@ const task = async (id: number) => {
   console.log('Task', id, 'started');
 
   // Let the main thread schedules other tasks
-  for (let i = 1; i <= 5; i++) await co.pause;
+  for (let i = 1; i <= 5; i++) await co.nextTick;
 
   console.log('Task', id, 'end');
 
