@@ -93,7 +93,7 @@ export const poll = <T extends {}>(t: Subscriber<T>): T | undefined =>
  * Returns a promise that resolves when the message queue is not empty
  * @param t
  */
-export const recieve = async <T extends {}>(
+export const dispatch = async <T extends {}>(
   t: Subscriber<T>,
 ): Promise<T | undefined> =>
   t[1][0] !== null

@@ -1,6 +1,6 @@
 import * as defer from 'ciorent/defer';
 
-const logTime = (label: string) => console.log(label + ':', Math.floor(performance.now()) + 'ms');
+const logTime = (label: string) => console.log(`${label}: ${Math.floor(performance.now())}ms`);
 
 const deferredUrl = defer.init<string>();
 

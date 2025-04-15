@@ -5,5 +5,5 @@ const throttle = co.throttle(500, 2);
 
 co.spawn(8, async (id) => {
   await throttle();
-  console.log(id + ': ' + Math.floor(performance.now()) + 'ms');
+  console.log(`${id}: ${Math.floor(performance.now())}ms`);
 });

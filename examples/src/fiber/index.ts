@@ -1,7 +1,7 @@
 import * as co from 'ciorent';
 import * as fiber from 'ciorent/fiber';
 
-const logTime = (label: string) => console.log(label + ':', Math.floor(performance.now()) + 'ms');
+const logTime = (label: string) => console.log(`${label}: ${Math.floor(performance.now())}ms`);
 
 const f1 = fiber.fn(function* () {
   // Wait for a promise

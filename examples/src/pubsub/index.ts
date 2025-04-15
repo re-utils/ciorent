@@ -21,7 +21,7 @@ co.spawn(3, async (id: number) => {
 
   while (true) {
     // Block until the value is sent
-    const x = await topic.recieve(sub);
+    const x = await topic.dispatch(sub);
     if (x == null) break;
     console.log(`Task ${id} recieved: ${x}`);
   }
