@@ -21,7 +21,7 @@ export interface Process<TReturn = unknown> {
   /**
    * Callback to continue running the fiber
    */
-  2: null | (() => void);
+  2: null | ((state: 1 | 3) => void);
 
   /**
    * Bounded fibers
@@ -67,15 +67,12 @@ const invoke = async (g: Generator, thread: Process) => {
     while (!t.done) {
       const v = await t.value;
 
-      // Paused
-      if (thread[1] === 0) {
-        let r;
-        const p = new Promise<any>((res) => {
-          r = res;
+      // Pause
+      if (thread[1] === 0)
+        // Don't cache the callback since this rarely happened
+        thread[1] = await new Promise<1 | 3>((res) => {
+          thread[2] = res;
         });
-        thread[2] = r as any;
-        await p;
-      }
 
       // If the fiber got stopped
       if (thread[1] === 3) return;
@@ -108,9 +105,9 @@ export const fn = <
  * @param g
  */
 export const spawn: Runtime = (f, ...args) => {
-  const thread = [null as any as Promise<any>, 1, null, []] as Process;
-  thread[0] = invoke(f(thread as any, ...args), thread);
-  return thread as any;
+  const t = [null as any as Promise<any>, 1, null, []] as Process;
+  t[0] = invoke(f(t as any, ...args), t);
+  return t as any;
 };
 
 /**
@@ -126,11 +123,9 @@ export const pause = (t: Process): void => {
  * @param t
  */
 export const resume = (t: Process): void => {
-  if (t[1] === 0) {
-    t[1] = 1;
+  if (t[1] === 0)
     // Can be a no-op
-    t[2]?.();
-  }
+    t[2]?.(1);
 };
 
 /**
@@ -141,8 +136,9 @@ export const interrupt = (t: Process): void => {
   if (t[1] !== 2) {
     if (t[1] === 0)
       // Can be a no-op
-      t[2]?.();
-    t[1] = 3;
+      t[2]?.(3);
+    else
+      t[1] = 3;
   }
 };
 
