@@ -123,9 +123,13 @@ export const pause = (t: Process): void => {
  * @param t
  */
 export const resume = (t: Process): void => {
-  if (t[1] === 0)
-    // Can be a no-op
-    t[2]?.(1);
+  if (t[1] === 0) {
+    if (t[2] === null)
+      t[1] = 1;
+    // Resolve when necessary
+    else
+      t[2](1);
+  }
 };
 
 /**
@@ -134,9 +138,9 @@ export const resume = (t: Process): void => {
  */
 export const interrupt = (t: Process): void => {
   if (t[1] !== 2) {
-    if (t[1] === 0)
-      // Can be a no-op
-      t[2]?.(3);
+    // Resolve when necessary
+    if (t[1] === 0 && t[2] !== null)
+      t[2](3);
     else
       t[1] = 3;
   }

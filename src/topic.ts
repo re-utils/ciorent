@@ -17,12 +17,25 @@ export interface Topic<T extends {}> {
    * The waiting subscriber resolves
    */
   1: ((res: QueueNode<T>) => void)[];
+
+  /**
+   * @internal
+   * @private
+   * Reuse promise callback
+   */
+  2: (res: (val: QueueNode<T>) => void) => void
 }
 
 /**
  * Create a topic
  */
-export const init = <T extends {}>(): Topic<T> => [[null] as any, [], []];
+export const init = <T extends {}>(): Topic<T> => {
+  const t: Topic<T> = [[null] as any, [], (res) => {
+    // Add to waiting promises
+    t[1].push(res);
+  }];
+  return t;
+}
 
 /**
  * Describe a topic
@@ -40,7 +53,7 @@ export interface Subscriber<T extends {}> {
  */
 export const subscribe = <T extends {}>(t: Topic<T>): Subscriber<T> => [
   t,
-  t[0],
+  t[0]
 ];
 
 /**
@@ -85,7 +98,4 @@ export const recieve = async <T extends {}>(
 ): Promise<T | undefined> =>
   t[1][0] !== null
     ? (t[1] = t[1][0])[1]
-    : (t[1] = await new Promise<QueueNode<T>>((res) => {
-        // Add to waiting promises
-        t[0][1].push(res);
-      }))[1];
+    : (t[1] = await new Promise<QueueNode<T>>(t[0][2]))[1];
