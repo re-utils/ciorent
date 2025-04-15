@@ -2,6 +2,7 @@
  * @module Other utilities
  */
 
+import type { AcquireCallback } from './lock.js';
 import type { Node as QueueNode } from './queue.js';
 
 /**
@@ -95,10 +96,12 @@ export const throttle = (ms: number, limit: number): (() => Promise<void>) => {
   // Promise resolve queue
   let head = [null] as any as QueueNode<() => void>;
   let tail = head;
+  const promiseCb: AcquireCallback<void> = (res) => {
+    head = head[0] = [null, res];
+  };
 
+  // Current timeout and remain
   let cur = limit;
-
-  // Current timeout
   let scheduled = false;
 
   const unlock = () => {
@@ -121,12 +124,9 @@ export const throttle = (ms: number, limit: number): (() => Promise<void>) => {
   };
 
   return () => {
-    if (cur === 0) {
+    if (cur === 0)
       // Queue the task when necessary
-      return new Promise<void>((res) => {
-        head = head[0] = [null, res];
-      });
-    }
+      return new Promise(promiseCb);
 
     if (!scheduled) {
       scheduled = true;

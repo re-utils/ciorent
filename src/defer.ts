@@ -31,10 +31,10 @@ export const wait = <T>(d: Defer<T>): Promise<T> => d[0];
 /**
  * Resolve the defer
  */
-export const resolve: (
-  <T extends {}>(d: Defer<T>, p: T | PromiseLike<T>) => void
-) & (
-  (d: Defer<void>) => void
-) = ((d: Defer, p: any): void => {
+export const resolve: (<T extends {}>(
+  d: Defer<T>,
+  p: T | PromiseLike<T>,
+) => void) &
+  ((d: Defer<void>) => void) = ((d: Defer, p: any): void => {
   d[1](p);
 }) as any;

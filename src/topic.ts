@@ -59,7 +59,7 @@ export const publish = <T extends {}>(t: Topic<T>, value: T): void => {
  * @param t
  */
 export const flush = <T extends {}>(t: Topic<T>): void => {
-  const head = (t[0] = t[0][0] = [null, undefined!]);
+  const head = (t[0] = t[0][0] = [null, void 0 as any]);
 
   for (let i = 0, res = t[1]; i < res.length; i++) res[i](head);
   t[1] = [];
@@ -72,7 +72,7 @@ export const flush = <T extends {}>(t: Topic<T>): void => {
  * @param t
  */
 export const poll = <T extends {}>(t: Subscriber<T>): T | undefined =>
-  t[1][0] !== null ? (t[1] = t[1][0])[1] : undefined;
+  t[1][0] !== null ? (t[1] = t[1][0])[1] : void 0;
 
 /**
  * Get the next value in the message queue

@@ -5,19 +5,19 @@
 import { nextTick as resolvedPromise } from './index.js';
 import type { Node as QueueNode } from './queue.js';
 import {
-  acquire as lockAcquire,
   release as lockRelease,
+  type AcquireCallback,
   type Lock,
 } from './lock.js';
 
 /**
  * Describe a semaphore
  */
-export interface Semaphore extends Lock<undefined> {
+export interface Semaphore extends Lock<void> {
   /**
    * Current remaining process allowed
    */
-  2: number;
+  3: number;
 }
 
 /**
@@ -25,15 +25,24 @@ export interface Semaphore extends Lock<undefined> {
  */
 export const init = (n: number): Semaphore => {
   const root = [null] as any as QueueNode<() => void>;
-  return [root, root, n];
+
+  const sem: Semaphore = [
+    root,
+    root,
+    (res) => {
+      sem[0] = sem[0][0] = [null, res];
+    },
+    n,
+  ];
+  return sem;
 };
 
 /**
  * Wait until the semaphore allows access
  */
 export const acquire = (s: Semaphore): Promise<void> => {
-  s[2]--;
-  return s[2] >= 0 ? resolvedPromise : lockAcquire(s);
+  s[3]--;
+  return s[3] >= 0 ? resolvedPromise : new Promise(s[2]);
 };
 
 /**
@@ -41,8 +50,8 @@ export const acquire = (s: Semaphore): Promise<void> => {
  */
 export const release = (s: Semaphore): void => {
   // Unlock for 1 task
-  if (s[2] < 0) lockRelease(s);
-  s[2]++;
+  if (s[3] < 0) lockRelease(s);
+  s[3]++;
 };
 
 /**
@@ -53,14 +62,14 @@ export const bind =
   // @ts-expect-error It is valid
   async (...a) => {
     // Fast path
-    s[2]--;
-    if (s[2] < 0) await acquire(s);
+    s[3]--;
+    if (s[3] < 0) await new Promise(s[2]);
 
     try {
       return await f(...a);
     } finally {
       // Unlock for 1 task
-      if (s[2] < 0) release(s);
-      s[2]++;
+      if (s[3] < 0) release(s);
+      s[3]++;
     }
   };

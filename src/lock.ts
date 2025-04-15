@@ -17,16 +17,21 @@ export interface Lock<T = any> {
    * The tail of the Promise resolve queue
    */
   1: QueueNode<(value?: T) => void>;
+
+  /**
+   * @internal
+   * @private
+   * Reuse promise callback
+   */
+  2: AcquireCallback<T>;
 }
 
 /**
- * Acquire an item
- * @param lock
+ * @internal
+ * @private
+ * Acquire callback caching
  */
-export const acquire = <T>(lock: Lock<T>): Promise<T | undefined> =>
-  new Promise((res) => {
-    lock[0] = lock[0][0] = [null, res];
-  });
+export type AcquireCallback<T = any> = (res: (value?: T) => void) => void;
 
 /**
  * Release an item
