@@ -6,7 +6,7 @@
  * Describe a defer
  */
 export type Defer<T = any> = [
-  pause: Promise<T>,
+  wait: Promise<T>,
   open: (value: T | PromiseLike<T>) => void,
 ];
 
@@ -24,13 +24,17 @@ export const init = <T>(): Defer<T> => {
 };
 
 /**
- * Pause until a deferred is resolved
+ * Wait until a deferred is resolved
  */
 export const wait = <T>(d: Defer<T>): Promise<T> => d[0];
 
 /**
- * Open a latch
+ * Resolve the defer
  */
-export const resolve = <T>(d: Defer<T>, p: T | PromiseLike<T>): void => {
+export const resolve: (
+  <T extends {}>(d: Defer<T>, p: T | PromiseLike<T>) => void
+) & (
+  (d: Defer<void>) => void
+) = ((d: Defer, p: any): void => {
   d[1](p);
-};
+}) as any;
