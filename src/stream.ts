@@ -9,13 +9,11 @@ import type { PromiseFn, UnboundedQueue } from './queue.js';
  */
 export type Stream<T extends {} = {}> = [
   ...UnboundedQueue<T | ((val?: T) => void)>,
-
   /**
    * @internal
    * Promise callback caching
    */
   callback: PromiseFn<T>,
-
   queueing: boolean,
 ];
 
@@ -30,7 +28,7 @@ export const init = <T extends {} = {}>(): Stream<T> => {
     (res) => {
       s[0] = s[0][0] = [null, res];
     },
-    false
+    false,
   ];
   return s;
 };

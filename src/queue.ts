@@ -9,7 +9,7 @@ export type FixedQueue<T extends {} = {}> = [
   buffer: (T | undefined | null)[],
   capacity: number,
   head: number,
-  tail: number
+  tail: number,
 ];
 
 /**
@@ -20,10 +20,7 @@ export type QueueNode<T> = [next: QueueNode<T> | null, value: T];
 /**
  * Describe an unbounded queue
  */
-export type UnboundedQueue<T> = [
-  head: QueueNode<T>,
-  tail: QueueNode<T>
-];
+export type UnboundedQueue<T> = [head: QueueNode<T>, tail: QueueNode<T>];
 
 /**
  * @internal

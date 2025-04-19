@@ -10,14 +10,12 @@ import type { PromiseFn, QueueNode, UnboundedQueue } from './queue.js';
 export type Semaphore = [
   // Promise resolve queue
   ...UnboundedQueue<() => void>,
-
   /**
    * @internal
    * Promise callback caching
    */
   callback: PromiseFn<void>,
-
-  remain: number
+  remain: number,
 ];
 
 /**
