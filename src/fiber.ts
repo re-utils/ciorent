@@ -7,27 +7,24 @@ import { sleep } from './index.js';
 /**
  * Describe a fiber process
  */
-export interface Process<TReturn = unknown> {
+export type Process<TReturn = unknown> = [
   /**
    * The waiting promise
    */
-  0: Promise<TReturn | undefined>;
-
+  proc: Promise<TReturn | undefined>,
   /**
    * Fiber status
    */
-  1: 0 | 1 | 2 | 3;
-
+  status: 0 | 1 | 2 | 3,
   /**
-   * Callback to continue running the fiber
+   * Callback to resume the fiber
    */
-  2: null | ((state: 1 | 3) => void);
-
+  resume: null | ((state: 1 | 3) => void),
   /**
    * Bounded fibers
    */
-  3: Process[];
-}
+  children: Process[],
+];
 
 /**
  * Describe a fiber runtime
@@ -124,11 +121,9 @@ export const pause = (t: Process): void => {
  */
 export const resume = (t: Process): void => {
   if (t[1] === 0) {
-    if (t[2] === null)
-      t[1] = 1;
+    if (t[2] === null) t[1] = 1;
     // Resolve when necessary
-    else
-      t[2](1);
+    else t[2](1);
   }
 };
 
@@ -139,10 +134,8 @@ export const resume = (t: Process): void => {
 export const interrupt = (t: Process): void => {
   if (t[1] !== 2) {
     // Resolve when necessary
-    if (t[1] === 0 && t[2] !== null)
-      t[2](3);
-    else
-      t[1] = 3;
+    if (t[1] === 0 && t[2] !== null) t[2](3);
+    else t[1] = 3;
   }
 };
 

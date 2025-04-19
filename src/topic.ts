@@ -2,100 +2,69 @@
  * @module Pubsub
  */
 
-import type { Node as QueueNode } from './queue.js';
+import type { AcquireCallback } from "./lock.js";
+import type { Node as QueueNode } from "./queue.js";
 
 /**
  * Describe a topic
  */
-export interface Topic<T extends {}> {
-  /**
-   * The head node of the value queue
-   */
-  0: QueueNode<T>;
+export type Topic<T extends {} = {}> = [
+  head: QueueNode<T>,
+  callback: AcquireCallback<void>,
+  resolve: (() => void) | null,
+  pending: Promise<void> | null,
+];
 
-  /**
-   * The waiting subscriber resolves
-   */
-  1: ((res: QueueNode<T>) => void)[];
-
-  /**
-   * @internal
-   * @private
-   * Reuse promise callback
-   */
-  2: (res: (val: QueueNode<T>) => void) => void
-}
+/**
+ * Describe a subscriber
+ */
+export type Subscriber<T extends {} = {}> = [
+  topic: Topic<T>,
+  tail: QueueNode<T>,
+];
 
 /**
  * Create a topic
  */
-export const init = <T extends {}>(): Topic<T> => {
-  const t: Topic<T> = [[null] as any, [], (res) => {
-    // Add to waiting promises
-    t[1].push(res);
-  }];
+export const init = <T extends {} = {}>(): Topic<T> => {
+  const t: Topic<T> = [[null] as any, (res) => {
+    t[2] = res;
+  }, null, null];
   return t;
 }
 
 /**
- * Describe a topic
+ * Publish a message to the topic
+ * @param t - The topic
+ * @param m - The message to publish
  */
-export interface Subscriber<T extends {}> {
-  0: Topic<T>;
-
-  // Current subscriber queue tail
-  1: QueueNode<T>;
+export const publish = <T extends {} = {}>(t: Topic<T>, m: T): void => {
+  t[0] = t[0][0] = [null, m];
+  t[2]?.();
+  t[2] = null;
 }
+
+/**
+ * Resolve all pending dispatch
+ */
+export const flush: (t: Topic) => void = publish as any;
 
 /**
  * Subscribe to a topic
  * @param t
+ * @returns A subscriber object
  */
 export const subscribe = <T extends {}>(t: Topic<T>): Subscriber<T> => [
-  t,
-  t[0]
+  t, t[0]
 ];
 
 /**
- * Publish to a topic
+ * Wait for messages from the topic
  * @param t
  */
-export const publish = <T extends {}>(t: Topic<T>, value: T): void => {
-  const head = (t[0] = t[0][0] = [null, value]);
+export const dispatch = async <T extends {}>(t: Subscriber<T>): Promise<T | undefined> => {
+  if (t[1][0] === null)
+    await (t[0][2] === null ? t[0][3] = new Promise(t[0][1]) : t[0][3]);
 
-  for (let i = 0, res = t[1]; i < res.length; i++) res[i](head);
-  t[1] = [];
-};
-
-/**
- * Resolve all waiting promises and clear all pending values
- * @param t
- */
-export const flush = <T extends {}>(t: Topic<T>): void => {
-  const head = (t[0] = t[0][0] = [null, void 0 as any]);
-
-  for (let i = 0, res = t[1]; i < res.length; i++) res[i](head);
-  t[1] = [];
-};
-
-/**
- * Get the next value in the message queue.
- *
- * Returns `undefined` if the message queue is empty
- * @param t
- */
-export const poll = <T extends {}>(t: Subscriber<T>): T | undefined =>
-  t[1][0] !== null ? (t[1] = t[1][0])[1] : void 0;
-
-/**
- * Get the next value in the message queue
- *
- * Returns a promise that resolves when the message queue is not empty
- * @param t
- */
-export const dispatch = async <T extends {}>(
-  t: Subscriber<T>,
-): Promise<T | undefined> =>
-  t[1][0] !== null
-    ? (t[1] = t[1][0])[1]
-    : (t[1] = await new Promise<QueueNode<T>>(t[0][2]))[1];
+  return (t[1] = t[1][0]!)[1];
+}

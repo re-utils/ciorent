@@ -3,7 +3,6 @@
  */
 
 import type { Fixed } from './queue.js';
-
 export { fixed as init } from './queue.js';
 
 /**

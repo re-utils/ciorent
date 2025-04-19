@@ -7,24 +7,22 @@ import type { Node as QueueNode } from './queue.js';
 /**
  * Describe a lock
  */
-export interface Lock<T = any> {
+export type Lock<T = any> = [
   /**
    * The head of the Promise resolve queue
    */
-  0: QueueNode<(value?: T) => void>;
-
+  head: QueueNode<(value?: T) => void>,
   /**
    * The tail of the Promise resolve queue
    */
-  1: QueueNode<(value?: T) => void>;
-
+  tail: QueueNode<(value?: T) => void>,
   /**
    * @internal
    * @private
    * Reuse promise callback
    */
-  2: AcquireCallback<T>;
-}
+  callback: AcquireCallback<T>,
+];
 
 /**
  * @internal

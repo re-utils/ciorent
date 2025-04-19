@@ -41,7 +41,8 @@
         "noParameterAssign": "off"
       },
       "complexity": {
-        "noForEach": "info"
+        "noForEach": "info",
+        "noBannedTypes": "off"
       },
       "performance": {
         "noDelete": "off"

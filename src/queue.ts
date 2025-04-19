@@ -5,41 +5,35 @@
 /**
  * Describe a fixed-sized queue
  */
-export interface Fixed<T extends {}> {
+export type Fixed<T extends {} = {}> = [
   /**
    * Pre-allocated queue
    */
-  readonly 0: (T | undefined | null)[];
-
+  buffer: (T | undefined | null)[],
   /**
    * Queue capacity
    */
-  readonly 1: number;
-
+  capacity: number,
   /**
    * Head pointer
    */
-  2: number;
-
+  head: number,
   /**
    * Tail pointer
    */
-  3: number;
-}
+  tail: number,
+];
 
 /**
  * Describe a queue node (singly linked list node)
  */
-export interface Node<T> {
-  0: Node<T> | null;
-  1: T;
-}
+export type Node<T> = [next: Node<T> | null, value: T];
 
 /**
  * Create a fixed queue
  * @param n - The queue size
  */
-export const fixed = <T extends {}>(n: number): Fixed<T> => [
+export const fixed = <T extends {} = {}>(n: number): Fixed<T> => [
   new Array(n),
   n,
   -1,

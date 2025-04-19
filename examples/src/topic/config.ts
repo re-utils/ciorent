@@ -2,9 +2,9 @@ import config from '@/types';
 
 export default config({
   heading: 'Pubsub',
-  desc: 'A fast, simple publish-subscribe API.',
+  desc: 'Pubsub allows broadcasting messages to topics that can be recieved by subscribers.',
   examples: {
     index: {}
   },
-  priority: 4
+  priority: 3
 });

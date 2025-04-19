@@ -4,21 +4,20 @@
 
 import { nextTick as resolvedPromise } from './index.js';
 import type { Node as QueueNode } from './queue.js';
-import {
-  release as lockRelease,
-  type AcquireCallback,
-  type Lock,
-} from './lock.js';
+import { release as lockRelease, type Lock } from './lock.js';
 
 /**
  * Describe a semaphore
  */
-export interface Semaphore extends Lock<void> {
-  /**
-   * Current remaining process allowed
-   */
-  3: number;
-}
+export type Semaphore = Lock<
+  void,
+  [
+    /**
+     * Current remaining process allowed
+     */
+    remain: number,
+  ]
+>;
 
 /**
  * Create a semaphore that allows n accesses
