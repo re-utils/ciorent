@@ -1,8 +1,8 @@
 import config from '@/types';
 
 export default config({
-  heading: 'Pubsub',
-  desc: 'Pubsub allows broadcasting messages to topics that can be recieved by subscribers.',
+  heading: 'Stream',
+  desc: 'Send and recieve data asynchronously through streams.',
   examples: {
     index: {}
   },
