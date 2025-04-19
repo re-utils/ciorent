@@ -1,7 +1,7 @@
 import * as stream from 'ciorent/stream';
 import * as co from 'ciorent';
 
-const numbers = stream.init();
+const numbers = stream.init<number>();
 
 // Spawn 3 tasks that read from the stream
 co.spawn(3, async (id) => {

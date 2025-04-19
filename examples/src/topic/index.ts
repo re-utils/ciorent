@@ -1,7 +1,7 @@
 import * as topic from 'ciorent/topic';
 import * as co from 'ciorent';
 
-const numbers = topic.init();
+const numbers = topic.init<number>();
 
 // Spawn 3 tasks that subscribe to the topic
 co.spawn(3, async (id) => {
