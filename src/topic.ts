@@ -60,7 +60,7 @@ export const subscribe = <T extends {}>(t: Topic<T>): Subscriber<T> => [
 
 /**
  * Wait for messages from the topic
- * @param t
+ * @param s
  */
 export const dispatch = async <T extends {}>(s: Subscriber<T>): Promise<T | undefined> => {
   if (s[1][0] === null)
