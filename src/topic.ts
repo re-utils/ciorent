@@ -62,9 +62,9 @@ export const subscribe = <T extends {}>(t: Topic<T>): Subscriber<T> => [
  * Wait for messages from the topic
  * @param t
  */
-export const dispatch = async <T extends {}>(t: Subscriber<T>): Promise<T | undefined> => {
-  if (t[1][0] === null)
-    await (t[0][2] === null ? t[0][3] = new Promise(t[0][1]) : t[0][3]);
+export const dispatch = async <T extends {}>(s: Subscriber<T>): Promise<T | undefined> => {
+  if (s[1][0] === null)
+    await (s[0][2] !== null ? s[0][3] : s[0][3] = new Promise(s[0][1]));
 
-  return (t[1] = t[1][0]!)[1];
+  return (s[1] = s[1][0]!)[1];
 }

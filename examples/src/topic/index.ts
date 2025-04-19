@@ -3,6 +3,7 @@ import * as co from 'ciorent';
 
 const numbers = topic.init();
 
+// Spawn 3 tasks that subscribe to the topic
 co.spawn(3, async (id) => {
   const subscriber = topic.subscribe(numbers);
 
@@ -13,7 +14,11 @@ co.spawn(3, async (id) => {
   }
 });
 
+// Publish messages to the topic
 for (let i = 0; i < 3; i++) {
   topic.publish(numbers, i);
   await co.nextTick;
 }
+
+// Send undefined to every topic
+topic.flush(numbers);
