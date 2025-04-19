@@ -5,35 +5,37 @@
 /**
  * Describe a fixed-sized queue
  */
-export type Fixed<T extends {} = {}> = [
-  /**
-   * Pre-allocated queue
-   */
+export type FixedQueue<T extends {} = {}> = [
   buffer: (T | undefined | null)[],
-  /**
-   * Queue capacity
-   */
   capacity: number,
-  /**
-   * Head pointer
-   */
   head: number,
-  /**
-   * Tail pointer
-   */
-  tail: number,
+  tail: number
 ];
 
 /**
  * Describe a queue node (singly linked list node)
  */
-export type Node<T> = [next: Node<T> | null, value: T];
+export type QueueNode<T> = [next: QueueNode<T> | null, value: T];
+
+/**
+ * Describe an unbounded queue
+ */
+export type UnboundedQueue<T> = [
+  head: QueueNode<T>,
+  tail: QueueNode<T>
+];
+
+/**
+ * @internal
+ * Promise callback caching
+ */
+export type PromiseFn<T = any> = (res: (value?: T) => void) => void;
 
 /**
  * Create a fixed queue
  * @param n - The queue size
  */
-export const fixed = <T extends {} = {}>(n: number): Fixed<T> => [
+export const fixed = <T extends {} = {}>(n: number): FixedQueue<T> => [
   new Array(n),
   n,
   -1,

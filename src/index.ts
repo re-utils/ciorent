@@ -2,8 +2,7 @@
  * @module Other utilities
  */
 
-import type { AcquireCallback } from './lock.js';
-import type { Node as QueueNode } from './queue.js';
+import type { PromiseFn, QueueNode } from './queue.js';
 
 /**
  * Continue the execution on next event loop cycle.
@@ -96,7 +95,7 @@ export const throttle = (ms: number, limit: number): (() => Promise<void>) => {
   // Promise resolve queue
   let head = [null] as any as QueueNode<() => void>;
   let tail = head;
-  const promiseCb: AcquireCallback<void> = (res) => {
+  const promiseCb: PromiseFn<void> = (res) => {
     head = head[0] = [null, res];
   };
 
@@ -123,7 +122,7 @@ export const throttle = (ms: number, limit: number): (() => Promise<void>) => {
     setTimeout(unlock, ms);
   };
 
-  return () => {
+  return async () => {
     if (cur === 0)
       // Queue the task when necessary
       return new Promise(promiseCb);
@@ -134,6 +133,5 @@ export const throttle = (ms: number, limit: number): (() => Promise<void>) => {
     }
 
     cur--;
-    return nextTick;
   };
 };

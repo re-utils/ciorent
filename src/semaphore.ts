@@ -2,22 +2,23 @@
  * @module Semaphores
  */
 
-import { nextTick as resolvedPromise } from './index.js';
-import type { Node as QueueNode } from './queue.js';
-import { release as lockRelease, type Lock } from './lock.js';
+import type { PromiseFn, QueueNode, UnboundedQueue } from './queue.js';
 
 /**
  * Describe a semaphore
  */
-export type Semaphore = Lock<
-  void,
-  [
-    /**
-     * Current remaining process allowed
-     */
-    remain: number,
-  ]
->;
+export type Semaphore = [
+  // Promise resolve queue
+  ...UnboundedQueue<() => void>,
+
+  /**
+   * @internal
+   * Promise callback caching
+   */
+  callback: PromiseFn<void>,
+
+  remain: number
+];
 
 /**
  * Create a semaphore that allows n accesses
@@ -39,9 +40,9 @@ export const init = (n: number): Semaphore => {
 /**
  * Wait until the semaphore allows access
  */
-export const acquire = (s: Semaphore): Promise<void> => {
+export const acquire = async (s: Semaphore): Promise<void> => {
   s[3]--;
-  return s[3] >= 0 ? resolvedPromise : new Promise(s[2]);
+  if (s[3] < 0) return new Promise(s[2]);
 };
 
 /**
@@ -49,7 +50,7 @@ export const acquire = (s: Semaphore): Promise<void> => {
  */
 export const release = (s: Semaphore): void => {
   // Unlock for 1 task
-  if (s[3] < 0) lockRelease(s);
+  if (s[3] < 0) (s[1] = s[1][0]!)[1]();
   s[3]++;
 };
 
@@ -68,7 +69,7 @@ export const bind =
       return await f(...a);
     } finally {
       // Unlock for 1 task
-      if (s[3] < 0) release(s);
+      if (s[3] < 0) (s[1] = s[1][0]!)[1]();
       s[3]++;
     }
   };

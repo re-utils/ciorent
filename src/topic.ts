@@ -2,15 +2,20 @@
  * @module Pubsub
  */
 
-import type { AcquireCallback } from "./lock.js";
-import type { Node as QueueNode } from "./queue.js";
+import type { PromiseFn, QueueNode } from "./queue.js";
 
 /**
  * Describe a topic
  */
 export type Topic<T extends {} = {}> = [
   head: QueueNode<T>,
-  callback: AcquireCallback<void>,
+
+  /**
+   * @internal
+   * Promise callback caching
+   */
+  callback: PromiseFn<void>,
+
   resolve: (() => void) | null,
   pending: Promise<void> | null,
 ];

@@ -8,21 +8,9 @@ import { sleep } from './index.js';
  * Describe a fiber process
  */
 export type Process<TReturn = unknown> = [
-  /**
-   * The waiting promise
-   */
   proc: Promise<TReturn | undefined>,
-  /**
-   * Fiber status
-   */
   status: 0 | 1 | 2 | 3,
-  /**
-   * Callback to resume the fiber
-   */
   resume: null | ((state: 1 | 3) => void),
-  /**
-   * Bounded fibers
-   */
   children: Process[],
 ];
 
