@@ -27,12 +27,12 @@
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "oxc-minify": "^0.64.0",
-    "@types/bun": "^1.2.8",
+    "@types/bun": "^1.2.10",
     "mitata": "^1.0.34",
     "tsx": "^4.19.3",
     "typedoc": "^0.28.2",
     "typedoc-material-theme": "^1.4.0",
-    "typescript": "^5.8.2"
+    "typescript": "^5.8.3"
   },
   "trustedDependencies": [
     "@biomejs/biome"
