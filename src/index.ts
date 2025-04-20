@@ -95,6 +95,7 @@ export const throttle = (ms: number, limit: number): (() => Promise<void>) => {
   // Promise resolve queue
   let head = [null] as any as QueueNode<() => void>;
   let tail = head;
+
   const promiseCb: PromiseFn<void> = (res) => {
     head = head[0] = [null, res];
   };

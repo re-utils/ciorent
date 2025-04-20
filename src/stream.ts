@@ -9,10 +9,6 @@ import type { PromiseFn, UnboundedQueue } from './queue.js';
  */
 export type Stream<T extends {} = {}> = [
   ...UnboundedQueue<T | ((val?: T) => void)>,
-  /**
-   * @internal
-   * Promise callback caching
-   */
   callback: PromiseFn<T>,
   queueing: boolean,
 ];

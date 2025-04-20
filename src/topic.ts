@@ -9,10 +9,6 @@ import type { PromiseFn, QueueNode } from './queue.js';
  */
 export type Topic<T extends {} = {}> = [
   head: QueueNode<T>,
-  /**
-   * @internal
-   * Promise callback caching
-   */
   callback: PromiseFn<void>,
   resolve: (() => void) | null,
   pending: Promise<void> | null,

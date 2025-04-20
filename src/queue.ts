@@ -23,18 +23,6 @@ export type QueueNode<T> = [next: QueueNode<T> | null, value: T];
 export type UnboundedQueue<T> = [head: QueueNode<T>, tail: QueueNode<T>];
 
 /**
- * @internal
- * Promise callback caching
+ * Cached promise callback
  */
 export type PromiseFn<T = any> = (res: (value?: T) => void) => void;
-
-/**
- * Create a fixed queue
- * @param n - The queue size
- */
-export const fixed = <T extends {} = {}>(n: number): FixedQueue<T> => [
-  new Array(n),
-  n,
-  -1,
-  -1,
-];
