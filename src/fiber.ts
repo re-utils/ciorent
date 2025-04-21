@@ -2,15 +2,14 @@
  * @module Fibers
  */
 
-import { sleep } from './index.js';
+import { nextTick, sleep } from './index.js';
 
 /**
  * Describe a fiber process
  */
 export type Process<TReturn = unknown> = [
   proc: Promise<TReturn | undefined>,
-  status: 0 | 1 | 2 | 3,
-  resume: null | ((state: 1 | 3) => void),
+  status: 1 | 2 | 3,
   children: Process[],
 ];
 
@@ -23,14 +22,9 @@ export type Runtime = <const TReturn, const Args extends any[]>(
 ) => Process<TReturn>;
 
 /**
- * Check whether the fiber has been paused
- */
-export const paused = (t: Process): boolean => t[1] === 0;
-
-/**
  * Check whether the fiber is running
  */
-export const resumed = (t: Process): boolean => t[1] === 1;
+export const running = (t: Process): boolean => t[1] === 1;
 
 /**
  * Check whether the fiber has completed
@@ -44,21 +38,13 @@ export const interrupted = (t: Process): boolean => t[1] === 3;
 
 const invoke = async (g: Generator, thread: Process) => {
   // Wait until next event loop cycle
-  await 0;
+  await nextTick;
 
   try {
     let t = g.next();
 
     while (!t.done) {
       const v = await t.value;
-
-      // Pause
-      if (thread[1] === 0)
-        // Don't cache the callback since this rarely happened
-        thread[1] = await new Promise<1 | 3>((res) => {
-          thread[2] = res;
-        });
-
       // If the fiber got stopped
       if (thread[1] === 3) return;
 
@@ -71,7 +57,7 @@ const invoke = async (g: Generator, thread: Process) => {
   } finally {
     // Stopped cuz of an error
     if (thread[1] !== 2) thread[1] = 3;
-    thread[3].forEach(interrupt);
+    thread[2].forEach(interrupt);
   }
 };
 
@@ -90,29 +76,9 @@ export const fn = <
  * @param g
  */
 export const spawn: Runtime = (f, ...args) => {
-  const t = [null as any as Promise<any>, 1, null, []] as Process;
+  const t = [null as any as Promise<any>, 1, []] as Process;
   t[0] = invoke(f(t as any, ...args), t);
   return t as any;
-};
-
-/**
- * Pause the execution of a fiber
- * @param t
- */
-export const pause = (t: Process): void => {
-  if (t[1] === 1) t[1] = 0;
-};
-
-/**
- * Resume the execution of a fiber
- * @param t
- */
-export const resume = (t: Process): void => {
-  if (t[1] === 0) {
-    if (t[2] === null) t[1] = 1;
-    // Resolve when necessary
-    else t[2](1);
-  }
 };
 
 /**
@@ -120,11 +86,7 @@ export const resume = (t: Process): void => {
  * @param t
  */
 export const interrupt = (t: Process): void => {
-  if (t[1] !== 2) {
-    // Resolve when necessary
-    if (t[1] === 0 && t[2] !== null) t[2](3);
-    else t[1] = 3;
-  }
+  if (t[1] !== 2) t[1] = 3;
 };
 
 /**
@@ -159,7 +121,7 @@ export const done = <T extends Process>(t: T): T[0] => t[0];
  * @param parent
  */
 export const mount = (child: Process, parent: Process): void => {
-  parent[3].push(child);
+  parent[2].push(child);
 };
 
 /**

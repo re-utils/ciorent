@@ -2,12 +2,10 @@ import { summary, run, bench, do_not_optimize } from 'mitata';
 
 // Example benchmark
 summary(() => {
-  const DAT = Promise.resolve(1);
-
   bench('Await', function*() {
     yield {
       [0]() {
-        return DAT;
+        return Promise.resolve(1);
       },
       async bench(data: any) {
         do_not_optimize(await data);
@@ -15,13 +13,13 @@ summary(() => {
     }
   });
 
-  bench('Conditional await', function*() {
+  bench('Await non-promise', function*() {
     yield {
       [0]() {
-        return DAT;
+        return 1;
       },
       async bench(data: any) {
-        do_not_optimize(data instanceof Promise ? await data : data);
+        do_not_optimize(await data);
       }
     }
   });
