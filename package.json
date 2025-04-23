@@ -1,6 +1,6 @@
 {
   "name": "ciorent",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "A lightweight, low-overhead concurrency library",
   "homepage": "https://ciorent.netlify.app",
   "repository": {
@@ -26,9 +26,10 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
-    "oxc-minify": "^0.64.0",
     "@types/bun": "^1.2.10",
     "mitata": "^1.0.34",
+    "oxc-minify": "^0.64.0",
+    "oxc-transform": "^0.65.0",
     "tsx": "^4.19.3",
     "typedoc": "^0.28.2",
     "typedoc-material-theme": "^1.4.0",

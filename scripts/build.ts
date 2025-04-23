@@ -1,114 +1,60 @@
-import type { Config } from '../examples/types.js';
-
+/// <reference types='bun-types' />
 import { existsSync, rmSync } from 'node:fs';
-import { readFile } from 'node:fs/promises';
-import { transpileDeclaration } from 'typescript';
+import { transform } from 'oxc-transform';
 
-import tsconfig from '../tsconfig.json';
 import pkg from '../package.json';
-
-import { cp, EXAMPLES, LIB, ROOT, SOURCE } from './utils.js';
+import { cp, LIB, ROOT, SOURCE } from './utils.js';
+import { minify } from 'oxc-minify';
 
 // Remove old content
-if (existsSync(LIB))
-  rmSync(LIB, { recursive: true });
+if (existsSync(LIB)) rmSync(LIB, { recursive: true });
 
-// Transpile files concurrently
-(async () => {
-  const transpiler = new Bun.Transpiler({
-    loader: 'ts',
-    target: 'node',
+// @ts-ignore
+const exports = (pkg.exports = {} as Record<string, string>);
 
-    // Lighter output
-    minifyWhitespace: true,
-    treeShaking: true,
-    trimUnusedImports: true
-  });
-
-  // @ts-ignore
-  const exports = pkg.exports = {} as Record<string, string>;
-
-  const promises: Promise<any>[] = [];
-
-  for (const path of new Bun.Glob('**/*.ts').scanSync(SOURCE)) {
-    promises.push(
-      (async () => {
+Array.fromAsync(new Bun.Glob('**/*.ts').scan(SOURCE))
+  .then((paths) =>
+    Promise.all(
+      paths.map(async (path) => {
         const pathNoExt = path.substring(0, path.lastIndexOf('.') >>> 0);
 
-        const buf = await Bun.file(`${SOURCE}/${path}`).text();
-        Bun.write(`${LIB}/${pathNoExt}.d.ts`, transpileDeclaration(buf, tsconfig as any).outputText);
+        const transformed = transform(
+          path,
+          await Bun.file(`${SOURCE}/${path}`).text(),
+          {
+            sourceType: 'module',
+            typescript: {
+              declaration: {
+                stripInternal: true,
+              },
+            },
+            lang: 'ts'
+          },
+        );
 
-        const transformed = await transpiler.transform(buf);
-        if (transformed !== '')
-          Bun.write(`${LIB}/${pathNoExt}.js`, transformed.replace(/const /g, 'let '));
+        Bun.write(`${LIB}/${pathNoExt}.d.ts`, transformed.declaration);
+        if (transformed.code !== '')
+          Bun.write(
+            `${LIB}/${pathNoExt}.js`,
+            minify(path, transformed.code.replace(/const /g, 'let ')).code,
+          );
 
         exports[
           pathNoExt === 'index'
             ? '.'
-            : './' + (pathNoExt.endsWith('/index')
-              ? pathNoExt.slice(0, -6)
-              : pathNoExt
-            )
-        ] = './' + pathNoExt + (transformed === '' ? '.d.ts' : '.js');
-      })()
-    );
-  }
+            : './' +
+              (pathNoExt.endsWith('/index')
+                ? pathNoExt.slice(0, -6)
+                : pathNoExt)
+        ] = './' + pathNoExt + (transformed.code === '' ? '.d.ts' : '.js');
+      }),
+    ),
+  )
+  .then(() => {
+    delete pkg.trustedDependencies;
+    delete pkg.devDependencies;
+    delete pkg.scripts;
 
-  await Promise.all(promises);
-
-  delete pkg.trustedDependencies;
-  delete pkg.devDependencies;
-  delete pkg.scripts;
-
-  Bun.write(LIB + '/package.json', JSON.stringify(pkg, null, 2));
-  cp(ROOT, LIB, 'README.md');
-})();
-
-// Build examples
-{
-  interface Chunk {
-    content: string,
-    priority: number
-  }
-
-  const desc = (props: { desc?: string }) => props.desc == null ? '' : props.desc + '\n';
-
-  let bufs: Chunk[] = [
-    {
-      content: await Bun.file(ROOT + '/README.md').text(),
-      priority: Infinity
-    }
-  ]
-
-  const process = async (path: string) => {
-    let content = '';
-    const config = (await import(path + '/config.ts')).default as Config;
-
-    content += `### ${config.heading}\n${desc(config)}`;
-    for (const [name, example] of Object.entries(config.examples)) {
-      content += `${example.heading == null ? '' : '#### ' + example.heading}\n${desc(example)}`;
-
-      const code = (await readFile(path + '/' + name + '.ts')).toString();
-      content += '```ts\n' + (code.endsWith('\n') ? code : code + '\n') + '```\n\n';
-    }
-
-    bufs.push({
-      content, priority: config.priority ?? 0
-    });
-  }
-
-  await Promise.all(
-    [...new Bun.Glob('*').scanSync({
-      cwd: EXAMPLES,
-      onlyFiles: false,
-      absolute: true
-    })].map(process)
-  );
-
-  Bun.write(
-    LIB + '/README.md',
-    bufs.toSorted((a, b) => b.priority - a.priority)
-      .map((a) => a.content)
-      .join('')
-  );
-}
+    Bun.write(LIB + '/package.json', JSON.stringify(pkg));
+    cp(ROOT, LIB, 'README.md');
+  });

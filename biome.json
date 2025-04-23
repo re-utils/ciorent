@@ -9,7 +9,7 @@
     "enabled": true
   },
   "files": {
-    "include": ["./src/**/*", "./examples/**/*"]
+    "include": ["./src/**/*", "./scripts/**/*", "./tests/**/*", "./bench/**/*"]
   },
   "javascript": {
     "formatter": {
@@ -42,7 +42,10 @@
       },
       "complexity": {
         "noForEach": "info",
-        "noBannedTypes": "off"
+        "noBannedTypes": "off",
+        "noVoid": "off",
+        "noUselessCatch": "info",
+        "useArrowFunction": "warn"
       },
       "performance": {
         "noDelete": "off"

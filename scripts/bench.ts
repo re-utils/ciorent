@@ -15,7 +15,8 @@ if (exactBench != null) {
   const path = `${exactBench}.bench.ts`;
   console.log('Running benchmark:', path);
   await exec`${exe} ${path}`;
-} else for (const path of new Glob('**/*.bench.ts').scanSync(BENCH)) {
-  console.log('Running benchmark:', path);
-  await exec`${exe} ${path}`;
-}
+} else
+  for (const path of new Glob('**/*.bench.ts').scanSync(BENCH)) {
+    console.log('Running benchmark:', path);
+    await exec`${exe} ${path}`;
+  }
