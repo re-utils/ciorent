@@ -28,7 +28,7 @@ Array.fromAsync(new Bun.Glob('**/*.ts').scan(SOURCE))
                 stripInternal: true,
               },
             },
-            lang: 'ts'
+            lang: 'ts',
           },
         );
 
@@ -36,7 +36,9 @@ Array.fromAsync(new Bun.Glob('**/*.ts').scan(SOURCE))
         if (transformed.code !== '')
           Bun.write(
             `${LIB}/${pathNoExt}.js`,
-            transformed.code.replace(/const /g, 'let '),
+            minify(path, transformed.code.replace(/const /g, 'let '), {
+              compress: false,
+            }).code,
           );
 
         exports[

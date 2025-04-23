@@ -4,7 +4,7 @@ export default config({
   heading: 'Stream',
   desc: 'Send and recieve data asynchronously through streams.',
   examples: {
-    index: {}
+    index: {},
   },
-  priority: 3
+  priority: 3,
 });

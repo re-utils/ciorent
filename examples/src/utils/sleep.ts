@@ -1,6 +1,7 @@
 import * as co from 'ciorent';
 
-const logTime = (label: string) => console.log(`${label}: ${Math.floor(performance.now())}ms`);
+const logTime = (label: string) =>
+  console.log(`${label}: ${Math.floor(performance.now())}ms`);
 
 logTime('Start');
 

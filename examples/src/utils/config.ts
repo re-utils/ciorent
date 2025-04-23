@@ -5,11 +5,11 @@ export default config({
   examples: {
     spawn: {
       heading: 'Spawning tasks',
-      desc: 'Utilities to create and run tasks.'
+      desc: 'Utilities to create and run tasks.',
     },
     sleep: {
       heading: 'Sleep',
-      desc: 'Cross-runtime synchronous and asynchronous sleep functions.'
+      desc: 'Cross-runtime synchronous and asynchronous sleep functions.',
     },
     debounce: {
       heading: 'Debounce',
@@ -21,8 +21,8 @@ export default config({
     },
     nextTick: {
       heading: 'Yield',
-      desc: 'Continue the execution on next tick, allowing other asynchronous tasks to run.'
-    }
+      desc: 'Continue the execution on next tick, allowing other asynchronous tasks to run.',
+    },
   },
-  priority: Number.POSITIVE_INFINITY
+  priority: Number.POSITIVE_INFINITY,
 });

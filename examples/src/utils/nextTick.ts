@@ -1,6 +1,7 @@
 import * as co from 'ciorent';
 
-const logTime = (label: string) => console.log(`${label}: ${Math.floor(performance.now())}ms`);
+const logTime = (label: string) =>
+  console.log(`${label}: ${Math.floor(performance.now())}ms`);
 
 // Expensive sync task
 const task1 = async () => {
@@ -10,8 +11,7 @@ const task1 = async () => {
   for (let i = 0, l = (Math.random() + 15) * 1e6; i < l; i++) {
     // Yield control back occasionally to the runtime, allowing
     // it to schedule other tasks
-    if (i % 1e5 === 0)
-      await co.nextTick;
+    if (i % 1e5 === 0) await co.nextTick;
 
     x += Math.random() * 32 + i * Math.round(Math.random() * 16);
   }

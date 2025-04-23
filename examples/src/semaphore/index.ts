@@ -17,7 +17,7 @@ const task = async (id: number) => {
 
   // Release the semaphore
   semaphore.release(sem);
-}
+};
 
 // Try to run 5 tasks concurrently
 co.spawn(5, task);

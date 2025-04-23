@@ -1,6 +1,6 @@
 {
   "name": "ciorent",
-  "version": "0.4.2",
+  "version": "0.4.4",
   "description": "A lightweight, low-overhead concurrency library",
   "homepage": "https://ciorent.netlify.app",
   "repository": {
@@ -19,7 +19,7 @@
   "types": "./index.d.ts",
   "scripts": {
     "task": "bun scripts/task.ts",
-    "fmt": "biome format ./src",
+    "fmt": "biome format .",
     "build:docs": "bun task build && bun x typedoc",
     "build:test": "bun task build && bun test",
     "build:publish": "bun build:docs && bun task report-size && bun task publish"
