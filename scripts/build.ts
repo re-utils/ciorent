@@ -36,7 +36,7 @@ Array.fromAsync(new Bun.Glob('**/*.ts').scan(SOURCE))
         if (transformed.code !== '')
           Bun.write(
             `${LIB}/${pathNoExt}.js`,
-            minify(path, transformed.code.replace(/const /g, 'let ')).code,
+            transformed.code.replace(/const /g, 'let '),
           );
 
         exports[
