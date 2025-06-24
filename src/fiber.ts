@@ -113,7 +113,7 @@ export function* join<T extends Process>(
  * Wait for a fiber to finish and retrieve its result
  * @param t
  */
-export const done = <T extends Process>(t: T): T[0] => t[0];
+export const complete = <T extends Process>(t: T): T[0] => t[0];
 
 /**
  * Mount child fiber lifetime to parent lifetime

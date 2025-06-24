@@ -1,16 +1,7 @@
 /**
- * @module Queue utilities
+ * @module Queue types
+ * @private
  */
-
-/**
- * Describe a fixed-sized queue
- */
-export type FixedQueue<T extends {} = {}> = [
-  buffer: (T | undefined | null)[],
-  capacity: number,
-  head: number,
-  tail: number,
-];
 
 /**
  * Describe a queue node (singly linked list node)

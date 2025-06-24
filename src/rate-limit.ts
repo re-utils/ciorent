@@ -1,3 +1,10 @@
+/**
+ * @module Rate limit
+ */
+
+ /**
+  * Describe a rate limiter
+  */
 export type Limiter = (calls: number, ms: number) => () => boolean;
 
 /**
@@ -49,7 +56,7 @@ export const sliding: Limiter = (limit, ms) => {
 export const bucket: Limiter = (limit, ms) => {
   let cur = limit;
 
-  ms = ms / limit;
+  ms /= limit;
   const unlock = () => {
     cur++;
     if (cur < limit)

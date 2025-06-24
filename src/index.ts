@@ -21,9 +21,16 @@ export const sleep: (ms: number) => Promise<void> =
   globalThis.Bun?.sleep ??
   globalThis.process?.getBuiltinModule?.('timers/promises').setTimeout ??
   ((ms) =>
-    new Promise((res) => {
+    new Promise((res: any) => {
       setTimeout(res, ms);
     }));
+
+/**
+ * Timeout a promise after ms milliseconds
+ * @param promise - Target promise to timeout
+ * @param ms - Timeout duration
+ */
+export const timeout = <T>(promise: Promise<T>, ms: number): Promise<T | void> => Promise.race([promise, sleep(ms)]);
 
 const sharedBuf = new Int32Array(new SharedArrayBuffer(4));
 
