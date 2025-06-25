@@ -6,7 +6,7 @@
 /**
  * Describe a queue node (singly linked list node)
  */
-export type QueueNode<T> = [next: QueueNode<T> | null, value: T];
+export type QueueNode<T> = [next: QueueNode<T> | undefined, value: T];
 
 /**
  * Describe an unbounded queue

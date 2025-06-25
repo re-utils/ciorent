@@ -20,9 +20,8 @@
   "scripts": {
     "task": "bun scripts/task.ts",
     "fmt": "biome format .",
-    "build:docs": "bun task build && bun x typedoc",
     "build:test": "bun task build && bun test",
-    "build:publish": "bun build:docs && bun task report-size && bun task publish"
+    "build:publish": "bun build:test && bun task report-size && bun task publish"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
@@ -31,8 +30,6 @@
     "oxc-minify": "^0.64.0",
     "oxc-transform": "^0.65.0",
     "tsx": "^4.20.3",
-    "typedoc": "^0.28.5",
-    "typedoc-material-theme": "^1.4.0",
     "typescript": "^5.8.3"
   },
   "trustedDependencies": [

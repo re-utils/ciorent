@@ -18,13 +18,13 @@ export type Semaphore = [
  * Create a semaphore that allows n accesses
  */
 export const init = (n: number): Semaphore => {
-  const root = [null] as any as QueueNode<() => void>;
+  const root = [,] as any as QueueNode<() => void>;
 
   const sem: Semaphore = [
     root,
     root,
     (res) => {
-      sem[0] = sem[0][0] = [null, res];
+      sem[0] = sem[0][0] = [, res];
     },
     n,
   ];
@@ -47,23 +47,3 @@ export const release = (s: Semaphore): void => {
   if (s[3] < 0) (s[1] = s[1][0]!)[1]();
   s[3]++;
 };
-
-/**
- * Bind a task to a semaphore
- */
-export const bind =
-  <T extends (...args: any[]) => Promise<any>>(f: T, s: Semaphore): T =>
-  // @ts-expect-error It is valid
-  async (...a) => {
-    // Fast path
-    s[3]--;
-    if (s[3] < 0) await new Promise(s[2]);
-
-    try {
-      return await f(...a);
-    } finally {
-      // Unlock for 1 task
-      if (s[3] < 0) (s[1] = s[1][0]!)[1]();
-      s[3]++;
-    }
-  };

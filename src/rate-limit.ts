@@ -5,7 +5,7 @@
  /**
   * Describe a rate limiter
   */
-export type Limiter = (calls: number, ms: number) => () => boolean;
+export type Limiter = (limit: number, ms: number) => () => boolean;
 
 /**
  * Fixed window strategy
@@ -21,9 +21,9 @@ export const fixed: Limiter = (limit, ms) => {
   return () => {
     if (cur === 0) return false;
 
-    if (cur === limit)
+    if (cur-- === limit)
       setTimeout(unlock, ms);
-    cur--;
+
     return true;
   }
 }
@@ -58,18 +58,16 @@ export const bucket: Limiter = (limit, ms) => {
 
   ms /= limit;
   const unlock = () => {
-    cur++;
-    if (cur < limit)
+    if (cur++ < limit)
       setTimeout(unlock, ms);
   }
 
   return () => {
     if (cur === 0) return false;
 
-    if (cur === limit)
+    if (cur-- === limit)
       setTimeout(unlock, ms);
 
-    cur--;
     return true;
   }
 }

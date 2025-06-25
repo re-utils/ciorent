@@ -76,7 +76,7 @@ export const fn = <
  * @param g
  */
 export const spawn: Runtime = (f, ...args) => {
-  const t = [null as any as Promise<any>, 1, []] as Process;
+  const t = [, 1, []] as any as Process;
   t[0] = invoke(f(t as any, ...args), t);
   return t as any;
 };
