@@ -9,9 +9,6 @@ import { minify } from 'oxc-minify';
 // Remove old content
 if (existsSync(LIB)) rmSync(LIB, { recursive: true });
 
-// @ts-ignore
-const exports = (pkg.exports = {} as Record<string, string>);
-
 Array.fromAsync(new Bun.Glob('**/*.ts').scan(SOURCE))
   .then((paths) =>
     Promise.all(
@@ -40,15 +37,6 @@ Array.fromAsync(new Bun.Glob('**/*.ts').scan(SOURCE))
               compress: false,
             }).code,
           );
-
-        exports[
-          pathNoExt === 'index'
-            ? '.'
-            : './' +
-              (pathNoExt.endsWith('/index')
-                ? pathNoExt.slice(0, -6)
-                : pathNoExt)
-        ] = './' + pathNoExt + (transformed.code === '' ? '.d.ts' : '.js');
       }),
     ),
   )
