@@ -11,7 +11,7 @@ A lightweight, low-overhead concurrency library.
 ### Pausing
 Continue the execution on next tick, allowing other asynchronous tasks to run.
 ```ts
-import * as co from 'ciorent';
+import { nextTick } from 'ciorent';
 
 const logTime = (label: string) =>
   console.log(`${label}: ${Math.floor(performance.now())}ms`);
@@ -24,7 +24,7 @@ const task1 = async () => {
   for (let i = 0, l = (Math.random() + 15) * 1e6; i < l; i++) {
     // Yield control back occasionally to the runtime, allowing
     // it to schedule other tasks
-    if (i % 1e5 === 0) await co.nextTick;
+    if (i % 1e5 === 0) await nextTick;
 
     x += Math.random() * 32 + i * Math.round(Math.random() * 16);
   }
@@ -46,9 +46,9 @@ for (let i = 1; i <= 5; i++) task2(i);
 ```
 
 ### Sleep
-Cross-runtime synchronous and asynchronous sleep functions.
+Runtime-agnostic synchronous and asynchronous sleep functions.
 ```ts
-import * as co from 'ciorent';
+import { sleep, sleepSync } from 'ciorent';
 
 const logTime = (label: string) =>
   console.log(`${label}: ${Math.floor(performance.now())}ms`);
@@ -56,20 +56,39 @@ const logTime = (label: string) =>
 logTime('Start');
 
 // Non-blocking
-await co.sleep(500);
+await sleep(500);
 logTime('After about 0.5s');
 
 // This blocks the event loop
 // On the browser this only works in workers and blocks the worker thread
-co.sleepSync(500);
+sleepSync(500);
 logTime('After another 0.5s');
-````
+```
+
+### Latches
+Latches are a type of synchronization primitive that allows one thread to wait until another thread completes an operation before continuing execution.
+```ts
+import { sleep, latch } from 'ciorent';
+
+const startFetch = latch.init();
+
+(async () => {
+  // Wait until the latch is opened
+  await latch.wait(startFetch);
+
+  const res = await fetch('http://example.com');
+  return res.text();
+})();
+
+// Fetch starts after 500ms
+await sleep(500);
+latch.open(startFetch);
+```
 
 ### Semaphores
 Semaphore is a concurrency primitive used to control access to a common resource by multiple processes.
 ```ts
-import * as semaphore from 'ciorent/semaphore';
-import * as co from 'ciorent';
+import { semaphore, nextTick } from 'ciorent';
 
 // Only allow 2 task to run concurrently
 const sem = semaphore.init(2);
@@ -81,7 +100,7 @@ const task = async (id: number) => {
   console.log('Task', id, 'started');
 
   // Let the main thread schedules other tasks
-  for (let i = 1; i <= 5; i++) await co.nextTick;
+  for (let i = 1; i <= 5; i++) await nextTick;
 
   console.log('Task', id, 'end');
 
@@ -95,8 +114,7 @@ for (let i = 1; i <= 5; i++) task(i);
 ### Fibers
 Virtual threads with more controlled execution.
 ```ts
-import * as co from 'ciorent';
-import * as fiber from 'ciorent/fiber';
+import { fiber, sleep } from 'ciorent';
 
 const logTime = (label: string) =>
   console.log(`${label}: ${Math.floor(performance.now())}ms`);
@@ -104,7 +122,7 @@ const logTime = (label: string) =>
 const f1 = fiber.fn(function* () {
   // Wait for a promise
   console.log('Fiber 1 waiting: 1s');
-  yield co.sleep(1000);
+  yield sleep(1000);
 
   // Wait for a promise and return its result
   const res = yield* fiber.unwrap(Promise.resolve(1));

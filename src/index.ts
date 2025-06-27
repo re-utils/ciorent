@@ -2,8 +2,6 @@
  * @module Other utilities
  */
 
-import type { PromiseFn, QueueNode } from './queue.js';
-
 /**
  * Continue the execution on next event loop cycle.
  *
@@ -47,3 +45,8 @@ export const sleepSync: (ms: number) => void =
   ((ms) => {
     Atomics.wait(sharedBuf, 0, 0, ms);
   });
+
+export * as fiber from './fiber.js';
+export * as latch from './latch.js';
+export * as rateLimit from './rate-limit.js';
+export * as semaphore from './semaphore.js';

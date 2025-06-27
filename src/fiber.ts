@@ -37,7 +37,6 @@ export const completed = (t: Process): boolean => t[1] === 2;
 export const interrupted = (t: Process): boolean => t[1] === 3;
 
 const invoke = async (g: Generator, thread: Process) => {
-  // Wait until next event loop cycle
   await nextTick;
 
   try {

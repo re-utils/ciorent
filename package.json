@@ -1,6 +1,6 @@
 {
   "name": "ciorent",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "description": "A lightweight, low-overhead concurrency library",
   "repository": {
     "type": "git",
