@@ -23,8 +23,7 @@
     "noPropertyAccessFromIndexSignature": false,
     // Paths
     "paths": {
-      "ciorent": ["../src/index.ts"],
-      "ciorent/*": ["../src/*"]
+      "ciorent": ["../src/index.ts"]
     }
   }
 }

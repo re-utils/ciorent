@@ -28,7 +28,10 @@ export const sleep: (ms: number) => Promise<void> =
  * @param promise - Target promise to timeout
  * @param ms - Timeout duration
  */
-export const timeout = <T>(promise: Promise<T>, ms: number): Promise<T | void> => Promise.race([promise, sleep(ms)]);
+export const timeout = <T>(
+  promise: Promise<T>,
+  ms: number,
+): Promise<T | void> => Promise.race([promise, sleep(ms)]);
 
 const sharedBuf = new Int32Array(new SharedArrayBuffer(4));
 
@@ -46,7 +49,7 @@ export const sleepSync: (ms: number) => void =
     Atomics.wait(sharedBuf, 0, 0, ms);
   });
 
-export * as fiber from './fiber.js';
+export * as signal from './signal.js';
 export * as latch from './latch.js';
 export * as rateLimit from './rate-limit.js';
 export * as semaphore from './semaphore.js';

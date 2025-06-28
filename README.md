@@ -112,72 +112,53 @@ for (let i = 1; i <= 5; i++) task(i);
 ```
 
 ### Fibers
-Virtual threads with more controlled execution.
+A module to interrupt executions of async functions.
 ```ts
-import { fiber, sleep } from 'ciorent';
+import { signal, sleep } from 'ciorent';
 
 const logTime = (label: string) =>
   console.log(`${label}: ${Math.floor(performance.now())}ms`);
 
-const f1 = fiber.fn(function* () {
+const f1 = (async (sig: signal.Signal) => {
   // Wait for a promise
   console.log('Fiber 1 waiting: 1s');
-  yield sleep(1000);
+  await sleep(1000);
 
-  // Wait for a promise and return its result
-  const res = yield* fiber.unwrap(Promise.resolve(1));
-  console.log('Fiber 1 recieved:', res);
+  // Interruption point
+  if (signal.interrupted(sig)) return;
 
-  return Math.random();
+  const res = Math.random();
+  console.log('Fiber 1 result:', res);
+
+  return res;
 });
 
 {
-  // Start the fiber process on next event loop cycle
-  const main = fiber.spawn(function* (proc) {
-    // Start f1, wait for the process to complete and get the result
-    console.log('Fiber 2: joins fiber 1');
-    const res = yield* fiber.join(fiber.spawn(f1));
-    console.log('Fiber 2 recieved:', res);
+  console.log('------------------------');
 
-    // Start f1 and make its lifetime depends on current fiber
-    console.log('Fiber 2: spawns fiber 1');
-    const childProc = fiber.spawn(f1);
-    fiber.mount(childProc, proc);
-  });
+  console.log('Fiber 1 started');
+  const sig = signal.init();
+  const promise = f1(sig);
 
-  console.log('Fiber 2 started:', fiber.running(main));
+  // Interrupt the signal
+  signal.interrupt(sig);
 
-  // Wait for the fiber process to finish
-  await fiber.complete(main);
+  // Execution will be stopped on the last interruption point
+  await promise;
 
-  // Check finish status
-  console.log('Fiber 2 completed:', fiber.completed(main));
+  console.log('Fiber 1 interrupted');
 }
 
 {
   console.log('------------------------');
 
-  const main = fiber.spawn(f1);
-  console.log('Fiber 1 started:', fiber.running(main));
-
-  // Interrupt a fiber
-  fiber.interrupt(main);
-
-  // Execution will be stopped on the last yield
-  await fiber.complete(main);
-
-  console.log('Fiber 1 interrupted:', fiber.interrupted(main));
-}
-
-{
-  console.log('------------------------');
-
-  const main = fiber.spawn(f1);
   logTime('Fiber 1 started');
+  const sig = signal.init();
+  const promise = f1(sig);
 
-  // Wait for a time period then interrupt the fiber
-  fiber.timeout(main, 500);
-  await fiber.complete(main);
+  // Timeout a signal after a duration
+  signal.timeout(sig, 500);
+  await promise;
 
   logTime('Fiber 1 interrupted');
 }

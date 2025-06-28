@@ -2,9 +2,9 @@
  * @module Rate limit
  */
 
- /**
-  * Describe a rate limiter
-  */
+/**
+ * Describe a rate limiter
+ */
 export type Limiter = (limit: number, ms: number) => () => boolean;
 
 /**
@@ -16,17 +16,15 @@ export const fixed: Limiter = (limit, ms) => {
   let cur = limit;
   const unlock = () => {
     cur = limit;
-  }
+  };
 
   return () => {
     if (cur === 0) return false;
-
-    if (cur-- === limit)
-      setTimeout(unlock, ms);
+    if (cur-- === limit) setTimeout(unlock, ms);
 
     return true;
-  }
-}
+  };
+};
 
 /**
  * Sliding window strategy
@@ -37,7 +35,7 @@ export const sliding: Limiter = (limit, ms) => {
   let cur = limit;
   const unlock = () => {
     cur++;
-  }
+  };
 
   return () => {
     if (cur === 0) return false;
@@ -45,8 +43,8 @@ export const sliding: Limiter = (limit, ms) => {
     cur--;
     setTimeout(unlock, ms);
     return true;
-  }
-}
+  };
+};
 
 /**
  * Token bucket strategy
@@ -58,16 +56,13 @@ export const bucket: Limiter = (limit, ms) => {
 
   ms /= limit;
   const unlock = () => {
-    if (cur++ < limit)
-      setTimeout(unlock, ms);
-  }
+    if (cur++ < limit) setTimeout(unlock, ms);
+  };
 
   return () => {
     if (cur === 0) return false;
-
-    if (cur-- === limit)
-      setTimeout(unlock, ms);
+    if (cur-- === limit) setTimeout(unlock, ms);
 
     return true;
-  }
-}
+  };
+};
