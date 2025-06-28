@@ -3,7 +3,7 @@ import { signal, sleep } from 'ciorent';
 const logTime = (label: string) =>
   console.log(`${label}: ${Math.floor(performance.now())}ms`);
 
-const f1 = (async (sig: signal.Signal) => {
+const f1 = async (sig: signal.Signal) => {
   // Wait for a promise
   console.log('Fiber 1 waiting: 1s');
   await sleep(1000);
@@ -15,7 +15,7 @@ const f1 = (async (sig: signal.Signal) => {
   console.log('Fiber 1 result:', res);
 
   return res;
-});
+};
 
 {
   console.log('------------------------');
@@ -37,12 +37,9 @@ const f1 = (async (sig: signal.Signal) => {
   console.log('------------------------');
 
   logTime('Fiber 1 started');
-  const sig = signal.init();
-  const promise = f1(sig);
 
-  // Timeout a signal after a duration
-  signal.timeout(sig, 500);
-  await promise;
+  // Interrupt the function after 500ms
+  await f1(signal.duration(500));
 
   logTime('Fiber 1 interrupted');
 }
