@@ -1,7 +1,7 @@
 /**
  * @module Signal
  *
- * Make promises interruptable
+ * Make promises interruptable.
  */
 
 import { sleep } from '.';
@@ -9,7 +9,7 @@ import { sleep } from '.';
 /**
  * Describe a signal
  */
-export type Signal = [interrupted: boolean];
+export type Signal = [interrupted: boolean, ...parents: Signal[]];
 
 /**
  * Create a signal
@@ -17,53 +17,50 @@ export type Signal = [interrupted: boolean];
 export const init = (): Signal => [false];
 
 /**
- * Check whether the signal has been interrupted
- * @param t
+ * Create a signal that aborts when any of the input signals abort
+ * @param sigs
  */
-export const interrupted = (t: Signal): boolean => t[0];
-
-/**
- * Interrupt a signal
- * @param t
- */
-export const interrupt = (t: Signal): void => {
-  t[0] = true;
-};
-
-/**
- * Interrupt a signal after a duration
- * @param t
- */
-export const timeout = async (t: Signal, ms: number): Promise<void> => {
-  await sleep(ms);
-  interrupt(t);
-};
-
-/**
- * Link a signal to an `AbortSignal`
- * @param t
- * @param signal
- */
-export const link = (t: Signal, signal: AbortSignal): void => {
-  signal.addEventListener('abort', () => interrupt(t));
-};
-
-/**
- * Create a signal that interrupts after ms
- * @param ms
- */
-export const duration = (ms: number): Signal => {
+export const any = (...sigs: Signal[]): Signal => {
   const sig: Signal = [false];
-  timeout(sig, ms);
+  for (let i = 0; i < sigs.length; i++)
+    sigs[i].push(sig);
   return sig;
 }
 
 /**
- * Create a signal that aborts when the abort signal aborts
- * @param signal
+ * Check whether the signal has been aborted
+ * @param t
  */
-export const bind = (signal: AbortSignal): Signal => {
+export const aborted = (t: Signal): boolean => t[0];
+
+/**
+ * Abort a signal
+ * @param t
+ */
+export const abort = (t: Signal): void => {
+  if (!t[0]) {
+    t[0] = true;
+    if (t.length > 1)
+      for (let i = 1; i < t.length; i++)
+        abort(t[i] as Signal);
+  }
+};
+
+/**
+ * Abort a signal after a duration
+ * @param t
+ */
+export const abortAfter = async (ms: number, t: Signal): Promise<void> => {
+  await sleep(ms);
+  abort(t);
+};
+
+/**
+ * Create a signal that aborts after ms
+ * @param ms
+ */
+export const timeout = (ms: number): Signal => {
   const sig: Signal = [false];
-  link(sig, signal);
+  abortAfter(ms, sig);
   return sig;
 }

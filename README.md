@@ -111,8 +111,8 @@ const task = async (id: number) => {
 for (let i = 1; i <= 5; i++) task(i);
 ```
 
-### Fibers
-A module to interrupt executions of async functions.
+### Signal
+A module to interrupt executions of functions.
 ```ts
 import { signal, sleep } from 'ciorent';
 
@@ -121,14 +121,14 @@ const logTime = (label: string) =>
 
 const f1 = async (sig: signal.Signal) => {
   // Wait for a promise
-  console.log('Fiber 1 waiting: 1s');
+  console.log('Task 1 waiting: 1s');
   await sleep(1000);
 
   // Interruption point
-  if (signal.interrupted(sig)) return;
+  if (signal.aborted(sig)) return;
 
   const res = Math.random();
-  console.log('Fiber 1 result:', res);
+  console.log('Task 1 result:', res);
 
   return res;
 };
@@ -136,27 +136,23 @@ const f1 = async (sig: signal.Signal) => {
 {
   console.log('------------------------');
 
-  console.log('Fiber 1 started');
+  logTime('Task 1 started');
   const sig = signal.init();
   const promise = f1(sig);
 
   // Interrupt the signal
-  signal.interrupt(sig);
+  signal.abort(sig);
 
   // Execution will be stopped on the last interruption point
   await promise;
-
-  console.log('Fiber 1 interrupted');
 }
 
 {
   console.log('------------------------');
 
-  logTime('Fiber 1 started');
+  logTime('Task 1 started');
 
   // Interrupt the function after 500ms
-  await f1(signal.duration(500));
-
-  logTime('Fiber 1 interrupted');
+  await f1(signal.timeout(500));
 }
 ```
