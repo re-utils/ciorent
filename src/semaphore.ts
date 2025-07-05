@@ -10,11 +10,7 @@ export type QueueNode = [next: QueueNode | undefined, value: () => void];
 /**
  * Describe a semaphore
  */
-export type Semaphore = [
-  head: QueueNode,
-  tail: QueueNode,
-  remain: number
-];
+export type Semaphore = [head: QueueNode, tail: QueueNode, remain: number];
 
 /**
  * Create a semaphore that allows n accesses
@@ -35,10 +31,12 @@ export const queue = async (
 ): Promise<void> => {
   if (--s[2] < 0) {
     s[0] = s[0][0] = [, cb];
-  } else {
-    await cb();
-    release(s);
-  }
+  } else
+    try {
+      await cb();
+    } finally {
+      release(s);
+    }
 };
 
 /**
