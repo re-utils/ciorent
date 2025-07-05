@@ -22,10 +22,9 @@ export const init = (): Signal => [false];
  */
 export const any = (...sigs: Signal[]): Signal => {
   const sig: Signal = [false];
-  for (let i = 0; i < sigs.length; i++)
-    sigs[i].push(sig);
+  for (let i = 0; i < sigs.length; i++) sigs[i].push(sig);
   return sig;
-}
+};
 
 /**
  * Check whether the signal has been aborted
@@ -40,9 +39,7 @@ export const aborted = (t: Signal): boolean => t[0];
 export const abort = (t: Signal): void => {
   if (!t[0]) {
     t[0] = true;
-    if (t.length > 1)
-      for (let i = 1; i < t.length; i++)
-        abort(t[i] as Signal);
+    if (t.length > 1) for (let i = 1; i < t.length; i++) abort(t[i] as Signal);
   }
 };
 
@@ -63,4 +60,4 @@ export const timeout = (ms: number): Signal => {
   const sig: Signal = [false];
   abortAfter(ms, sig);
   return sig;
-}
+};

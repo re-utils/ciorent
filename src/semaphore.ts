@@ -10,7 +10,6 @@ import type { PromiseFn, QueueNode, UnboundedQueue } from './queue.js';
 export type Semaphore = [
   // Promise resolve queue
   ...UnboundedQueue<() => void>,
-  callback: PromiseFn<void>,
   remain: number,
 ];
 
@@ -19,16 +18,7 @@ export type Semaphore = [
  */
 export const init = (n: number): Semaphore => {
   const root = [,] as any as QueueNode<() => void>;
-
-  const sem: Semaphore = [
-    root,
-    root,
-    (res) => {
-      sem[0] = sem[0][0] = [, res];
-    },
-    n,
-  ];
-  return sem;
+  return [root, root, n];
 };
 
 /**
@@ -36,20 +26,26 @@ export const init = (n: number): Semaphore => {
  * @param s
  * @param cb
  */
-export const queue = async (s: Semaphore, cb: () => Promise<any>): Promise<void> => {
-  if (--s[3] < 0) {
-    s[2](cb);
+export const queue = async (
+  s: Semaphore,
+  cb: () => Promise<any>,
+): Promise<void> => {
+  if (--s[2] < 0) {
+    s[0] = s[0][0] = [, cb];
   } else {
     await cb();
     release(s);
   }
-}
+};
 
 /**
  * Wait until the semaphore allows access
  */
-export const acquire = async (s: Semaphore): Promise<void> => {
-  if (--s[3] < 0) return new Promise(s[2]);
+export const acquire = (s: Semaphore): Promise<void> | void => {
+  if (--s[2] < 0)
+    return new Promise((cb) => {
+      s[0] = s[0][0] = [, cb];
+    });
 };
 
 /**
@@ -57,5 +53,5 @@ export const acquire = async (s: Semaphore): Promise<void> => {
  */
 export const release = (s: Semaphore): void => {
   // Unlock for 1 task
-  if (s[3]++ < 0) (s[1] = s[1][0]!)[1]();
+  if (s[2]++ < 0) (s[1] = s[1][0]!)[1]();
 };
