@@ -2,7 +2,7 @@
  * @module Semaphores
  */
 
-import type { PromiseFn, QueueNode, UnboundedQueue } from './queue.js';
+import type { QueueNode, UnboundedQueue } from './queue.js';
 
 /**
  * Describe a semaphore
