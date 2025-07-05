@@ -2,22 +2,25 @@
  * @module Semaphores
  */
 
-import type { QueueNode, UnboundedQueue } from './queue.js';
+/**
+ * Describe a singly linked list node
+ */
+export type QueueNode = [next: QueueNode | undefined, value: () => void];
 
 /**
  * Describe a semaphore
  */
 export type Semaphore = [
-  // Promise resolve queue
-  ...UnboundedQueue<() => void>,
-  remain: number,
+  head: QueueNode,
+  tail: QueueNode,
+  remain: number
 ];
 
 /**
  * Create a semaphore that allows n accesses
  */
 export const init = (n: number): Semaphore => {
-  const root = [,] as any as QueueNode<() => void>;
+  const root = [,] as any as QueueNode;
   return [root, root, n];
 };
 
