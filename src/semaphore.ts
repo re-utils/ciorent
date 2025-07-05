@@ -32,6 +32,20 @@ export const init = (n: number): Semaphore => {
 };
 
 /**
+ * Queue a task
+ * @param s
+ * @param cb
+ */
+export const queue = async (s: Semaphore, cb: () => Promise<any>): Promise<void> => {
+  if (--s[3] < 0) {
+    s[2](cb);
+  } else {
+    await cb();
+    release(s);
+  }
+}
+
+/**
  * Wait until the semaphore allows access
  */
 export const acquire = async (s: Semaphore): Promise<void> => {
