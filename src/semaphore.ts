@@ -10,43 +10,34 @@ export type QueueNode = [next: QueueNode | undefined, value: () => void];
 /**
  * Describe a semaphore
  */
-export type Semaphore = [head: QueueNode, tail: QueueNode, remain: number];
+export type Semaphore = [
+  head: QueueNode,
+  tail: QueueNode,
+  remain: number,
+  register: (cb: () => void) => void,
+];
 
 /**
  * Create a semaphore that allows n accesses
  */
 export const init = (n: number): Semaphore => {
-  const root = [,] as any as QueueNode;
-  return [root, root, n];
-};
-
-/**
- * Queue a task
- * @param s
- * @param cb
- */
-export const queue = async (
-  s: Semaphore,
-  cb: () => Promise<any>,
-): Promise<void> => {
-  if (--s[2] < 0) {
-    s[0] = s[0][0] = [, cb];
-  } else
-    try {
-      await cb();
-    } finally {
-      release(s);
-    }
+  const r = [,] as any as QueueNode;
+  const s: Semaphore = [
+    r,
+    r,
+    n,
+    (f) => {
+      s[0] = s[0][0] = [, f];
+    },
+  ];
+  return s;
 };
 
 /**
  * Wait until the semaphore allows access
  */
 export const acquire = (s: Semaphore): Promise<void> | void => {
-  if (--s[2] < 0)
-    return new Promise((cb) => {
-      s[0] = s[0][0] = [, cb];
-    });
+  if (--s[2] < 0) return new Promise(s[3]);
 };
 
 /**
