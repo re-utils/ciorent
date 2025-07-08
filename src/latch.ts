@@ -2,7 +2,7 @@
  * Describe a latch
  */
 export type Latch = [
-  p: Promise<void>,
+  p: Promise<void> | void,
   res: () => void,
   cb: (res: () => void) => void,
 ];
@@ -24,7 +24,8 @@ export const init = <T>(): Latch => {
  * @param c
  */
 export const close = (c: Latch): void => {
-  c[0] = new Promise(c[2]);
+  if (c[0] == null)
+    c[0] = new Promise(c[2]);
 };
 
 /**
@@ -33,10 +34,11 @@ export const close = (c: Latch): void => {
  */
 export const open = (c: Latch): void => {
   c[1]();
+  c[0] = void 0;
 };
 
 /**
  * Wait for the latch to open
  * @param c
  */
-export const wait = (c: Latch): Promise<void> => c[0];
+export const wait = (c: Latch): Promise<void> | void => c[0];
