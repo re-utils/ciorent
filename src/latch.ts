@@ -24,8 +24,7 @@ export const init = <T>(): Latch => {
  * @param c
  */
 export const close = (c: Latch): void => {
-  if (c[0] == null)
-    c[0] = new Promise(c[2]);
+  if (c[0] == null) c[0] = new Promise(c[2]);
 };
 
 /**
