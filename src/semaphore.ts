@@ -47,3 +47,24 @@ export const release = (s: Semaphore): void => {
   // Unlock for 1 task
   if (s[2]++ < 0) (s[1] = s[1][0]!)[1]();
 };
+
+/**
+ * Control concurrency of a task with a semaphore
+ */
+export const control =
+  <T extends () => Promise<any>>(task: T, s: Semaphore): T =>
+  // @ts-ignore
+  async (...args) => {
+    if (--s[2] < 0) await new Promise<void>(s[3]);
+
+    try {
+      return await task(...args);
+    } finally {
+      release(s);
+    }
+  };
+
+/**
+ * Set maximum concurrency for a task
+ */
+export const permits = <T extends () => Promise<any>>(task: T, permits: number): T => control(task, init(permits));
