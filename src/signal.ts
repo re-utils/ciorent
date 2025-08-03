@@ -4,7 +4,7 @@
  * Make promises interruptable.
  */
 
-import { sleep } from '.';
+import { sleep } from './index.js';
 
 /**
  * Describe a signal
