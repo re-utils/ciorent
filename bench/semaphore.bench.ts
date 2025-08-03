@@ -7,6 +7,14 @@ summary(() => {
   const CONCURRENCY = 10;
   const TASKS = 50;
 
+  const setup = (label: string, limited: (i: number) => Promise<void>) => {
+    bench(label, async () => {
+      let tasks = new Array(TASKS);
+      for (let i = 0; i < TASKS; i++) tasks[i] = limited(i);
+      await Promise.all(tasks);
+    });
+  };
+
   const task = async (i: number) => {
     let num = i;
     for (let i = 0, s = 1e3 * (Math.random() * 4 + 10); i < s; i++) {
@@ -14,36 +22,11 @@ summary(() => {
       num += Math.random() * s + i;
     }
     do_not_optimize(num);
-  }
+  };
 
-  {
-    const limited = limitConcur(CONCURRENCY, task);
-    bench('limit-concur', async () => {
-      let tasks = new Array(TASKS);
-      for (let i = 0; i < TASKS; i++) tasks[i] = limited(i);
-      await Promise.all(tasks);
-    });
-  }
-
-  {
-    const limited = limitFunction(task, {
-      concurrency: CONCURRENCY
-    });
-    bench('p-limit', async () => {
-      let tasks = new Array(TASKS);
-      for (let i = 0; i < TASKS; i++) tasks[i] = limited(i);
-      await Promise.all(tasks);
-    });
-  }
-
-  {
-    const limited = semaphore.permits(task, CONCURRENCY);
-    bench('ciorent', async () => {
-      let tasks = new Array(TASKS);
-      for (let i = 0; i < TASKS; i++) tasks[i] = limited(i);
-      await Promise.all(tasks);
-    });
-  }
-})
+  setup('limit-concur', limitConcur(CONCURRENCY, task));
+  setup('p-limit', limitFunction(task, { concurrency: CONCURRENCY }));
+  setup('ciorent', semaphore.permits(task, CONCURRENCY));
+});
 
 run();
