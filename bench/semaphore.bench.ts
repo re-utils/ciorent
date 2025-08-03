@@ -6,7 +6,7 @@ import { semaphore } from 'ciorent';
 summary(() => {
   const CONCURRENCY = 10;
   const TASKS = 50;
-  const ITER = 1e4;
+  const ITER = 1e3;
 
   const setup = (label: string, limited: (s: number) => Promise<void>) => {
     bench(label, function* () {
@@ -24,7 +24,7 @@ summary(() => {
   const task = async (s: number) => {
     let num = 0;
     for (let i = 0; i < s; i++) {
-      if (i % 100 === 0) await 0;
+      if (i % 10 === 0) await 0;
       num += Math.random() * s + i;
     }
     do_not_optimize(num);
