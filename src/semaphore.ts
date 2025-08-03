@@ -52,7 +52,7 @@ export const release = (s: Semaphore): void => {
  * Control concurrency of a task with a semaphore
  */
 export const control =
-  <T extends () => Promise<any>>(task: T, s: Semaphore): T =>
+  <T extends (...args: any[]) => Promise<any>>(task: T, s: Semaphore): T =>
   // @ts-ignore
   async (...args) => {
     if (--s[2] < 0) await new Promise<void>(s[3]);
@@ -67,4 +67,7 @@ export const control =
 /**
  * Set maximum concurrency for a task
  */
-export const permits = <T extends () => Promise<any>>(task: T, permits: number): T => control(task, init(permits));
+export const permits = <T extends (...args: any[]) => Promise<any>>(
+  task: T,
+  permits: number,
+): T => control(task, init(permits));

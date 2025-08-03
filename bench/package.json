@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "limit-concur": "^4.0.0",
     "p-limit": "^6.2.0"
   }
 }

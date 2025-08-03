@@ -13,14 +13,8 @@
     // Best practices
     "strict": true,
     "skipLibCheck": true,
-    "noFallthroughCasesInSwitch": true,
-    // Some stricter flags
-    "noUnusedLocals": false,
-    "noImplicitAny": true,
-    "noImplicitOverride": true,
-    "noImplicitThis": true,
-    "noUnusedParameters": false,
-    "noPropertyAccessFromIndexSignature": false,
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
     // Paths
     "paths": {
       "ciorent": ["../src/index.ts"]
