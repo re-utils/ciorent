@@ -12,6 +12,27 @@
 export const nextTick: Promise<void> = Promise.resolve();
 
 /**
+ * Get the state of a promise on next tick:
+ * - `0`: Input promise rejected
+ * - `1`: Input promise resolves
+ * - `2`: Input promise pending
+ */
+export const state = async (p: Promise<any>): Promise<0 | 1 | 2> => {
+  let res: 0 | 1 | 2 = 2;
+  p.then(
+    () => {
+      res = 1;
+    },
+    (e) => {
+      res = 0;
+      return Promise.reject(e);
+    }
+  );
+  await nextTick;
+  return res;
+}
+
+/**
  * Sleep for a duration.
  * @param ms - Sleep duration in milliseconds
  */
@@ -22,16 +43,6 @@ export const sleep: (ms: number) => Promise<void> =
     new Promise((res: any) => {
       setTimeout(res, ms);
     }));
-
-/**
- * Timeout a promise after ms milliseconds
- * @param promise - Target promise to timeout
- * @param ms - Timeout duration
- */
-export const timeout = <T>(
-  promise: Promise<T>,
-  ms: number,
-): Promise<T | void> => Promise.race([promise, sleep(ms)]);
 
 const sharedBuf = new Int32Array(new SharedArrayBuffer(4));
 
@@ -50,6 +61,5 @@ export const sleepSync: (ms: number) => void =
   });
 
 export * as signal from './signal.js';
-export * as latch from './latch.js';
 export * as rateLimit from './rate-limit.js';
 export * as semaphore from './semaphore.js';

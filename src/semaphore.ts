@@ -65,7 +65,7 @@ export const control =
   };
 
 /**
- * Set maximum concurrency for a task
+ * Set maximum concurrency for a task (fast path)
  */
 export const permits = <T extends (...args: any[]) => Promise<any>>(
   task: T,
