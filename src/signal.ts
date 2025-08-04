@@ -4,8 +4,6 @@
  * Make promises interruptable.
  */
 
-import { sleep } from './index.js';
-
 /**
  * Describe a signal
  */
@@ -47,9 +45,8 @@ export const abort = (t: Signal): void => {
  * Abort a signal after a duration
  * @param t
  */
-export const abortAfter = async (ms: number, t: Signal): Promise<void> => {
-  await sleep(ms);
-  abort(t);
+export const abortAfter = (ms: number, t: Signal): void => {
+  setTimeout(() => abort(t), ms);
 };
 
 /**

@@ -44,7 +44,6 @@ export const acquire = (s: Semaphore): Promise<void> | void => {
  * Signal to the semaphore to release access
  */
 export const release = (s: Semaphore): void => {
-  // Unlock for 1 task
   if (s[2]++ < 0) (s[1] = s[1][0]!)[1]();
 };
 
@@ -55,6 +54,7 @@ export const control =
   <T extends (...args: any[]) => Promise<any>>(task: T, s: Semaphore): T =>
   // @ts-ignore
   async (...args) => {
+    // Skip a microtask if not blocked
     if (--s[2] < 0) await new Promise<void>(s[3]);
 
     try {
@@ -81,6 +81,7 @@ export const queue = async <R>(
   s: Semaphore,
   task: () => Promise<R>,
 ): Promise<R> => {
+  // Skip a microtask if not blocked
   if (--s[2] < 0) await new Promise<void>(s[3]);
 
   try {
