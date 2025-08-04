@@ -71,3 +71,18 @@ export const permits = <T extends (...args: any[]) => Promise<any>>(
   task: T,
   permits: number,
 ): T => control(task, init(permits));
+
+/**
+ * Queue a task
+ * @param s
+ * @param task
+ */
+export const queue = async <R>(s: Semaphore, task: () => Promise<R>): Promise<R> => {
+  if (--s[2] < 0) await new Promise<void>(s[3]);
+
+  try {
+    return await task();
+  } finally {
+    release(s);
+  }
+}
