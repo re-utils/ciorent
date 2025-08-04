@@ -19,18 +19,36 @@ export const nextTick: Promise<void> = Promise.resolve();
  */
 export const state = async (p: Promise<any>): Promise<0 | 1 | 2> => {
   let res: 0 | 1 | 2 = 2;
+  // Is there any more performant way to do this?
   p.then(
     () => {
       res = 1;
     },
-    (e) => {
+    () => {
       res = 0;
-      return Promise.reject(e);
-    }
+      // Don't swallow unhandled rejection
+      return p;
+    },
   );
   await nextTick;
   return res;
-}
+};
+
+/**
+ * Timeout a promise
+ * @param p
+ * @param ms
+ */
+export const timeout = <T>(p: Promise<T>, ms: number): Promise<T | void> =>
+  new Promise((res, rej) => {
+    // Is there any more performant way to do this?
+    p.then(res, (e) => {
+      rej(e);
+      // Don't swallow unhandled rejection
+      return p;
+    });
+    setTimeout(res, ms);
+  });
 
 /**
  * Sleep for a duration.

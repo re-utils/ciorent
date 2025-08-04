@@ -77,7 +77,10 @@ export const permits = <T extends (...args: any[]) => Promise<any>>(
  * @param s
  * @param task
  */
-export const queue = async <R>(s: Semaphore, task: () => Promise<R>): Promise<R> => {
+export const queue = async <R>(
+  s: Semaphore,
+  task: () => Promise<R>,
+): Promise<R> => {
   if (--s[2] < 0) await new Promise<void>(s[3]);
 
   try {
@@ -85,4 +88,4 @@ export const queue = async <R>(s: Semaphore, task: () => Promise<R>): Promise<R>
   } finally {
     release(s);
   }
-}
+};

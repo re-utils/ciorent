@@ -16,8 +16,8 @@ summary(() => {
           let tasks = new Array(TASKS);
           for (let i = 0; i < TASKS; i++) tasks[i] = limited(n);
           await Promise.all(tasks);
-        }
-      }
+        },
+      };
     });
   };
 
