@@ -8,6 +8,9 @@ import { cp, LIB, ROOT, SOURCE } from './utils.ts';
 // Remove old content
 if (existsSync(LIB)) rmSync(LIB, { recursive: true });
 
+// @ts-ignore
+const exports = (pkg.exports = {} as Record<string, string>);
+
 await Promise.all(
   [...new Bun.Glob('**/*.ts').scanSync(SOURCE)].map(async (path) => {
     const pathNoExt = path.slice(0, path.lastIndexOf('.') >>> 0);
@@ -26,8 +29,6 @@ await Promise.all(
       },
     );
 
-    if (transformed.declaration)
-      Bun.write(`${LIB}/${pathNoExt}.d.ts`, transformed.declaration);
     if (transformed.code !== '')
       Bun.write(
         `${LIB}/${pathNoExt}.js`,
@@ -35,6 +36,16 @@ await Promise.all(
           compress: false,
         }).code,
       );
+
+    if (transformed.declaration) {
+      Bun.write(`${LIB}/${pathNoExt}.d.ts`, transformed.declaration);
+      exports[
+        pathNoExt === 'index'
+          ? '.'
+          : './' +
+            (pathNoExt.endsWith('/index') ? pathNoExt.slice(0, -6) : pathNoExt)
+      ] = './' + pathNoExt + (transformed.code === '' ? '.d.ts' : '.js');
+    }
   }),
 );
 
