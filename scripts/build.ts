@@ -32,9 +32,15 @@ await Promise.all(
     if (transformed.code !== '')
       Bun.write(
         `${LIB}/${pathNoExt}.js`,
-        minify(path, transformed.code.replace(/const /g, 'let '), {
-          compress: false,
-        }).code,
+        minify(
+          path,
+          transformed.code.replace(/const (.*) =/g, (a) =>
+            a.replace('const', 'let'),
+          ),
+          {
+            compress: false,
+          },
+        ).code,
       );
 
     if (transformed.declaration) {
