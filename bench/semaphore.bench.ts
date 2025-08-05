@@ -1,7 +1,7 @@
-import { run, bench, summary, do_not_optimize } from 'mitata';
-import limitConcur from 'limit-concur';
-import { limitFunction } from 'p-limit';
 import { semaphore } from 'ciorent';
+import limitConcur from 'limit-concur';
+import { bench, do_not_optimize, run, summary } from 'mitata';
+import { limitFunction } from 'p-limit';
 
 summary(() => {
   const CONCURRENCY = 10;
@@ -13,7 +13,7 @@ summary(() => {
       yield {
         [0]: () => ITER,
         bench: async (n: number) => {
-          let tasks = new Array(TASKS);
+          const tasks = new Array(TASKS);
           for (let i = 0; i < TASKS; i++) tasks[i] = limited(n);
           await Promise.all(tasks);
         },

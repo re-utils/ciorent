@@ -1,21 +1,12 @@
 {
+  "extends": "../tsconfig.json",
   "compilerOptions": {
-    // Enable latest features
-    "lib": ["ESNext", "DOM", "DOM.Iterable"],
-    "target": "ESNext",
-    "module": "ESNext",
-    "moduleDetection": "force",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    // Bundler mode
-    "moduleResolution": "Bundler",
-    "verbatimModuleSyntax": true,
-    "skipLibCheck": true,
-    // Paths
+    "isolatedModules": false,
+    "isolatedDeclarations": false,
+    "allowJs": true,
     "paths": {
       "ciorent": ["../src"],
       "ciorent/*": ["../src/*"]
     }
-  },
-  "include": ["./**/*.ts"]
+  }
 }

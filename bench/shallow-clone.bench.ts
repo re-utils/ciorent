@@ -1,4 +1,4 @@
-import { summary, run, bench, do_not_optimize, type k_state } from 'mitata';
+import { bench, do_not_optimize, type k_state, run, summary } from 'mitata';
 
 // Example benchmark
 summary(() => {

@@ -1,4 +1,4 @@
-import { summary, run, bench, do_not_optimize } from 'mitata';
+import { bench, do_not_optimize, run, summary } from 'mitata';
 
 // Example benchmark
 summary(() => {

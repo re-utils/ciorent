@@ -69,8 +69,8 @@ export const control =
  */
 export const permits = <T extends (...args: any[]) => Promise<any>>(
   task: T,
-  permits: number,
-): T => control(task, init(permits));
+  perms: number,
+): T => control(task, init(perms));
 
 /**
  * Queue a task
