@@ -39,6 +39,7 @@ await Promise.all(
           ),
           {
             compress: false,
+            mangle: false
           },
         ).code,
       );

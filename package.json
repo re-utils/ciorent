@@ -15,8 +15,6 @@
   ],
   "license": "MIT",
   "type": "module",
-  "main": "./index.js",
-  "types": "./index.d.ts",
   "scripts": {
     "task": "bun scripts/task.ts",
     "fmt": "biome format .",
