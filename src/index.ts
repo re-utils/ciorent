@@ -2,7 +2,6 @@
  * Continue the execution on next event loop cycle.
  *
  * You can `await` this **occasionally** in an expensive synchronous operation to avoid
- *
  * blocking the main thread and let other asynchronous task to run.
  */
 export const nextTick: Promise<void> = Promise.resolve();

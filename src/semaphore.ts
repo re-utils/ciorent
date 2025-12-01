@@ -1,4 +1,4 @@
-import type { Extend } from "./types.ts";
+import type { Extend } from './types.js';
 
 /**
  * Describe a singly linked list node
@@ -12,7 +12,7 @@ export type Semaphore = [
   head: QueueNode,
   tail: QueueNode,
   remain: number,
-  register: (cb: () => void) => void
+  register: (cb: () => void) => void,
 ];
 
 /**
@@ -49,10 +49,13 @@ export const release = (s: Extend<Semaphore>): void => {
  * Control concurrency of a task with a semaphore
  */
 export const control =
-  <T extends (...args: any[]) => Promise<any>>(task: T, s: Extend<Semaphore>): T =>
+  <T extends (...args: any[]) => Promise<any>>(
+    task: T,
+    s: Extend<Semaphore>,
+  ): T =>
   // @ts-ignore
   async (...args) => {
-    // Skip a microtask if not blocked
+    // Skip a microtick if not blocked
     if (--s[2] < 0) await new Promise<void>(s[3]);
 
     try {
@@ -79,11 +82,8 @@ export const queue = async <R>(
   s: Extend<Semaphore>,
   task: () => Promise<R>,
 ): Promise<R> => {
-  // Skip a microtask if not blocked
-  if (--s[2] < 0) await new Promise<void>(s[3]);
-
   try {
-    return await task();
+    return await (--s[2] < 0 ? new Promise<void>(s[3]).then(task) : task());
   } finally {
     release(s);
   }

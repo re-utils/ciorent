@@ -1,46 +1,43 @@
-import type { Extend } from './types.ts';
+import { nextTick } from './index.js';
 
 /**
  * Describe a mutex
  */
-export type Mutex = [
-  /**
-   * Current lock promise
-   */
-  lock: Promise<void> | null,
-  /**
-   * Cached promise executor callback
-   */
-  executor: (res: () => void) => void,
-  /**
-   * Current resolve function
-   */
-  resolve: () => void,
-];
+export type Mutex = () => Promise<() => void>;
 
 /**
  * Create a mutex.
  */
 export const init = (): Mutex => {
-  const o: Mutex = [
-    null!,
-    (res) => {
-      o[2] = res;
-    },
-    null!,
-  ];
-  return o;
+  let lock = nextTick;
+  let resolve;
+  const callback = (res: () => void) => {
+    resolve = res;
+  };
+
+  return async () => {
+    const currentLock = lock!;
+    lock = new Promise<void>(callback);
+
+    const release = resolve!;
+    await currentLock;
+    return release;
+  };
+};
+
+const chainLock = async (lock: any, fn: any, ...args: any[]) => {
+  try {
+    await lock!;
+  } catch {}
+  return fn(...args);
 };
 
 /**
- * Acquire a mutex.
- * @returns a release callback
+ * Equivalent to `semaphore.permits(fn, 1)` but way faster.
  */
-export const acquire = async (mutex: Extend<Mutex>): Promise<Mutex[2]> => {
-  const currentLock = mutex[0];
-  mutex[0] = new Promise(mutex[1]);
-
-  const release = mutex[2];
-  await currentLock;
-  return release;
+export const permits = <const T extends (...args: any[]) => Promise<any>>(
+  fn: T,
+): T => {
+  let lock = nextTick;
+  return ((...args) => (lock = chainLock(lock!, fn, ...args))) as T;
 };
