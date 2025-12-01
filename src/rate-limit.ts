@@ -1,8 +1,4 @@
 /**
- * @module Rate limit
- */
-
-/**
  * Describe a rate limiter
  */
 export type Limiter = (limit: number, ms: number) => () => boolean;

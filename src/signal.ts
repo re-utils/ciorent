@@ -1,10 +1,4 @@
 /**
- * @module Signal
- *
- * Make promises interruptable.
- */
-
-/**
  * Describe a signal
  */
 export type Signal = [interrupted: boolean, ...parents: Signal[]];

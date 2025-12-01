@@ -1,8 +1,4 @@
 /**
- * @module Other utilities
- */
-
-/**
  * Continue the execution on next event loop cycle.
  *
  * You can `await` this **occasionally** in an expensive synchronous operation to avoid
@@ -90,6 +86,7 @@ export const sleepSync: (ms: number) => void =
     Atomics.wait(sharedBuf, 0, 0, ms);
   });
 
+export * as mutex from './mutex.js';
 export * as rateLimit from './rate-limit.js';
 export * as semaphore from './semaphore.js';
 export * as signal from './signal.js';
