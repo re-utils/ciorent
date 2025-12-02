@@ -6,6 +6,17 @@
  */
 export const nextTick: Promise<void> = Promise.resolve();
 
+const getFinishedState = async (s: [number], p: Promise<any>) => {
+  try {
+    await p;
+    s[0] = 1;
+  } catch (e) {
+    s[0] = 0;
+
+    // Don't swallow error
+    return p;
+  }
+}
 /**
  * Get the state of a promise on next tick:
  * - `0`: Input promise rejected
@@ -13,20 +24,10 @@ export const nextTick: Promise<void> = Promise.resolve();
  * - `2`: Input promise pending
  */
 export const state = async (p: Promise<any>): Promise<0 | 1 | 2> => {
-  let res: 0 | 1 | 2 = 2;
-  // Is there any more performant way to do this?
-  p.then(
-    () => {
-      res = 1;
-    },
-    () => {
-      res = 0;
-      // Don't swallow unhandled rejection
-      return p;
-    },
-  );
+  const res = [2] as [0 | 1 | 2];
+  getFinishedState(res, p);
   await nextTick;
-  return res;
+  return res[0] as any;
 };
 
 /**
@@ -41,21 +42,27 @@ export const isThenable = <T>(p: unknown): p is PromiseLike<T> =>
   // @ts-ignore
   typeof p.then === 'function';
 
+const resolvePromise = async (resolver: any, p: any) => {
+  try {
+    resolver.resolve(await p);
+  } catch (e) {
+    resolver.reject(e);
+
+    // Don't swallow error
+    return p;
+  }
+}
 /**
  * Timeout a promise
  * @param p
  * @param ms
  */
-export const timeout = <T>(p: Promise<T>, ms: number): Promise<T | void> =>
-  new Promise((res, rej) => {
-    // Is there any more performant way to do this?
-    p.then(res, (e) => {
-      rej(e);
-      // Don't swallow unhandled rejection
-      return p;
-    });
-    setTimeout(res, ms);
-  });
+export const timeout = <T>(p: Promise<T>, ms: number): Promise<T | void> => {
+  const resolver = Promise.withResolvers<T | void>();
+  setTimeout(resolver.resolve, ms);
+  resolvePromise(resolver, p);
+  return resolver.promise;
+};
 
 /**
  * Sleep for a duration.
