@@ -1,7 +1,10 @@
 {
   "type": "module",
   "dependencies": {
+    "@types/mutexify": "^1.2.4",
+    "async-mutex": "^0.5.0",
     "limit-concur": "^4.0.0",
+    "mutexify": "^1.4.0",
     "p-limit": "^6.2.0"
   }
 }

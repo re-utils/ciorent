@@ -1,17 +1,31 @@
 {
   "lockfileVersion": 1,
+  "configVersion": 0,
   "workspaces": {
     "": {
       "dependencies": {
+        "@types/mutexify": "^1.2.4",
+        "async-mutex": "^0.5.0",
         "limit-concur": "^4.0.0",
+        "mutexify": "^1.4.0",
         "p-limit": "^6.2.0",
       },
     },
   },
   "packages": {
+    "@types/mutexify": ["@types/mutexify@1.2.4", "", {}, "sha512-mKNLg7IdppIDCNXiC1hNkNhdEdYnd5ErNnoNgEOERwU3DwD/S1/TBseob0Uq/QXWADBz7OWaWUoHa6IEUtrOEQ=="],
+
+    "async-mutex": ["async-mutex@0.5.0", "", { "dependencies": { "tslib": "^2.4.0" } }, "sha512-1A94B18jkJ3DYq284ohPxoXbfTA5HsQ7/Mf4DEhcyLx3Bz27Rh59iScbB6EPiP+B+joue6YCxcMXSbFC1tZKwA=="],
+
     "limit-concur": ["limit-concur@4.0.0", "", {}, "sha512-BXUCP52gLz8JA8/cRKkXswOV6FnA2gl8hL8DbgQuo8XA9NKcwU3Oq/Cg1JyAZ+gyNmFEZXI+ZYLes0BrZkl+7g=="],
 
+    "mutexify": ["mutexify@1.4.0", "", { "dependencies": { "queue-tick": "^1.0.0" } }, "sha512-pbYSsOrSB/AKN5h/WzzLRMFgZhClWccf2XIB4RSMC8JbquiB0e0/SH5AIfdQMdyHmYtv4seU7yV/TvAwPLJ1Yg=="],
+
     "p-limit": ["p-limit@6.2.0", "", { "dependencies": { "yocto-queue": "^1.1.1" } }, "sha512-kuUqqHNUqoIWp/c467RI4X6mmyuojY5jGutNU0wVTmEOOfcuwLqyMVoAi9MKi2Ak+5i9+nhmrK4ufZE8069kHA=="],
+
+    "queue-tick": ["queue-tick@1.0.1", "", {}, "sha512-kJt5qhMxoszgU/62PLP1CJytzd2NKetjSRnyuj31fDd3Rlcz3fzlFdFLD1SItunPwyqEOkca6GbV612BWfaBag=="],
+
+    "tslib": ["tslib@2.8.1", "", {}, "sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w=="],
 
     "yocto-queue": ["yocto-queue@1.2.1", "", {}, "sha512-AyeEbWOu/TAXdxlV9wmGcR0+yh2j3vYPGOECcIj2S7MkrLyC7ne+oye2BKTItt0ii2PHk4cDy+95+LshzbXnGg=="],
   }
