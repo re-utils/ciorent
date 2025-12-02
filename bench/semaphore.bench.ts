@@ -26,7 +26,7 @@ const setupCases = (permit: number) => {
 
   {
     const sem = new Semaphore(permit);
-    setup(`permit ${permit} - async-mutex`, () => sem.runExclusive(task));
+    setup(`permit ${permit} - async-mutex (semaphore)`, () => sem.runExclusive(task));
   }
 }
 
@@ -36,7 +36,7 @@ summary(() => {
 
   {
     const mu = new Mutex();
-    setup('permit 1 - async-mutex', () => mu.runExclusive(task));
+    setup('permit 1 - async-mutex (mutex)', () => mu.runExclusive(task));
   }
 
   {
