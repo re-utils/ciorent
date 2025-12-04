@@ -26,8 +26,11 @@ const setupSemaphoreCases = (permit: number) => {
     const sem = semaphore.init(permit, 200 - permit);
     setup(`permit ${permit} - ciorent (semaphore)`, async () => {
       await semaphore.acquire(sem);
-      await task();
-      semaphore.release(sem);
+      try {
+        await task();
+      } finally {
+        semaphore.release(sem);
+      }
     });
   }
 
