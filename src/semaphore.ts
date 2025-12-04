@@ -1,90 +1,74 @@
-import type { Extend } from './types.js';
+import { type Extend, loadResolve, promiseResolver } from './utils.js';
+
+type QueueItem = () => void;
+type Queue = [(QueueItem | null)[], len: number, head: number, tail: number];
+
+const push = (qu: Extend<Queue>, item: QueueItem): void => {
+  const tail = qu[3];
+  qu[3] = tail + 1 === qu[1] ? 0 : tail + 1;
+  qu[0][tail] = item;
+};
 
 /**
- * Describe a singly linked list node
+ * Check whether the semaphore queue is full.
  */
-export type QueueNode = [next: QueueNode | null, value: () => void];
+export const full = (qu: Extend<Queue>): boolean =>
+  qu[2] === qu[3] && qu[0][qu[2]] !== null;
+
+const pop = (qu: Extend<Queue>): QueueItem => {
+  const head = qu[2];
+  qu[2] = head + 1 === qu[1] ? 0 : head + 1;
+
+  const val = qu[0][head];
+  qu[0][head] = null;
+  return val!;
+};
+
+export type Semaphore = [...Queue, remain: number];
 
 /**
- * Describe a semaphore
+ * Create a semaphore.
+ *
+ * @example
+ * // maximum of 10 concurrent tasks and 200 waiting tasks.
+ * const sem = semaphore.init(10, 200);
  */
-export type Semaphore = [
-  head: QueueNode,
-  tail: QueueNode,
-  remain: number,
-  register: (cb: () => void) => void,
+export const init = (permits: number, capacity: number): Semaphore => [
+  new Array(capacity).fill(null),
+  capacity,
+  0,
+  0,
+  permits,
 ];
 
 /**
- * Create a semaphore that allows n accesses
+ * Acquire a permit.
+ *
+ * @example
+ *
+ * if (semaphore.full(sem)) {
+ *   // Internal queue is full
+ * }
+ *
+ * await semaphore.acquire(sem);
+ *
+ * // Do something and then release the permit.
+ * semaphore.release(sem);
  */
-export const init = (n: number): Semaphore => {
-  const r: QueueNode = [null, null!];
-  const s: Semaphore = [
-    r,
-    r,
-    n,
-    (f) => {
-      s[0] = s[0][0] = [null, f];
-    },
-  ];
-  return s;
-};
-
-/**
- * Wait until the semaphore allows access
- */
-export const acquire = (s: Extend<Semaphore>): Promise<void> | void => {
-  if (--s[2] < 0) return new Promise(s[3]);
-};
-
-/**
- * Signal to the semaphore to release access
- */
-export const release = (s: Extend<Semaphore>): void => {
-  if (s[2]++ < 0) (s[1] = s[1][0]!)[1]();
-};
-
-/**
- * Control concurrency of a task with a semaphore
- */
-export const control =
-  <T extends (...args: any[]) => Promise<any>>(
-    task: T,
-    s: Extend<Semaphore>,
-  ): T =>
-  // @ts-ignore
-  async (...args) => {
-    // Skip a microtick if not blocked
-    if (--s[2] < 0) await new Promise<void>(s[3]);
-
-    try {
-      return await task(...args);
-    } finally {
-      release(s);
-    }
-  };
-
-/**
- * Set maximum concurrency for a task (fast path)
- */
-export const permits = <T extends (...args: any[]) => Promise<any>>(
-  task: T,
-  perms: number,
-): T => control(task, init(perms));
-
-/**
- * Queue a task
- * @param s
- * @param task
- */
-export const queue = async <R>(
-  s: Extend<Semaphore>,
-  task: () => Promise<R>,
-): Promise<R> => {
-  try {
-    return await (--s[2] < 0 ? new Promise<void>(s[3]).then(task) : task());
-  } finally {
-    release(s);
+export const acquire = (sem: Extend<Semaphore>): Promise<void> | void => {
+  if (--sem[4] < 0) {
+    const promise = new Promise<void>(loadResolve);
+    push(sem, promiseResolver[0]);
+    return promise;
   }
+};
+
+/**
+ * Release a permit.
+ *
+ * @example
+ * semaphore.release(sem);
+ */
+export const release = (sem: Extend<Semaphore>): void => {
+  sem[4]++ < 0 && pop(sem)();
 };

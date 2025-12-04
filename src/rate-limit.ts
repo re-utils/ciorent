@@ -8,7 +8,7 @@ export type Limiter = (limit: number, ms: number) => () => boolean;
  * @param limit
  * @param ms
  */
-export const fixed: Limiter = (limit, ms) => {
+export const fixedWindow: Limiter = (limit, ms) => {
   let cur = limit;
   const unlock = () => {
     cur = limit;
@@ -27,7 +27,7 @@ export const fixed: Limiter = (limit, ms) => {
  * @param limit
  * @param ms
  */
-export const sliding: Limiter = (limit, ms) => {
+export const slidingWindow: Limiter = (limit, ms) => {
   let cur = limit;
   const unlock = () => {
     cur++;
@@ -47,7 +47,7 @@ export const sliding: Limiter = (limit, ms) => {
  * @param limit
  * @param ms
  */
-export const bucket: Limiter = (limit, ms) => {
+export const tokenBucket: Limiter = (limit, ms) => {
   let cur = limit;
 
   ms /= limit;

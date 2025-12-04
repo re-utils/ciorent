@@ -1,6 +1,6 @@
 {
   "name": "ciorent",
-  "version": "0.12.3",
+  "version": "1.0.0",
   "description": "A lightweight, low-overhead concurrency library",
   "homepage": "https://re-utils.pages.dev/concurrency",
   "repository": {

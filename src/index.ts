@@ -1,3 +1,6 @@
+import { rateLimit } from 'ciorent';
+import { loadResolve, loadResolvers, promiseResolver } from './utils.js';
+
 /**
  * Continue the execution on next event loop cycle.
  *
@@ -16,7 +19,7 @@ const getFinishedState = async (s: [number], p: Promise<any>) => {
     // Don't swallow error
     return p;
   }
-}
+};
 /**
  * Get the state of a promise on next tick:
  * - `0`: Input promise rejected
@@ -42,26 +45,23 @@ export const isThenable = <T>(p: unknown): p is PromiseLike<T> =>
   // @ts-ignore
   typeof p.then === 'function';
 
-const resolvePromise = async (resolver: any, p: any) => {
+const resolvePromise = async (resolve: any, reject: any, p: any) => {
   try {
-    resolver.resolve(await p);
+    resolve(await p);
   } catch (e) {
-    resolver.reject(e);
-
-    // Don't swallow error
-    return p;
+    reject(e);
   }
-}
+};
 /**
  * Timeout a promise
  * @param p
  * @param ms
  */
 export const timeout = <T>(p: Promise<T>, ms: number): Promise<T | void> => {
-  const resolver = Promise.withResolvers<T | void>();
-  setTimeout(resolver.resolve, ms);
-  resolvePromise(resolver, p);
-  return resolver.promise;
+  const promise = new Promise<void>(loadResolvers);
+  setTimeout(promiseResolver[0], ms);
+  resolvePromise(promiseResolver[0], promiseResolver[1], p);
+  return promise;
 };
 
 /**
@@ -71,10 +71,11 @@ export const timeout = <T>(p: Promise<T>, ms: number): Promise<T | void> => {
 export const sleep: (ms: number) => Promise<void> =
   globalThis.Bun?.sleep ??
   globalThis.process?.getBuiltinModule?.('timers/promises').setTimeout ??
-  ((ms) =>
-    new Promise((res: any) => {
-      setTimeout(res, ms);
-    }));
+  ((ms) => {
+    const promise = new Promise(loadResolve);
+    setTimeout(promiseResolver[0], ms);
+    return promise;
+  });
 
 const sharedBuf = new Int32Array(new SharedArrayBuffer(4));
 
@@ -93,6 +94,6 @@ export const sleepSync: (ms: number) => void =
   });
 
 export * as mutex from './mutex.js';
-export * as rateLimit from './rate-limit.js';
+export * as limit from './rate-limit.js';
 export * as semaphore from './semaphore.js';
 export * as signal from './signal.js';

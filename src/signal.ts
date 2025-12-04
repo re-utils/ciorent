@@ -12,11 +12,17 @@ export const init = (): Signal => [false];
  * Create a signal that aborts when any of the input signals abort
  * @param sigs
  */
-export const any = (...sigs: Signal[]): Signal => {
+export const any = (signals: Signal[]): Signal => {
   const sig: Signal = [false];
-  for (let i = 0; i < sigs.length; i++) sigs[i].push(sig);
+  for (let i = 0; i < signals.length; i++) signals[i].push(sig);
   return sig;
 };
+
+const _ = [false];
+/**
+ * Create a signal that when interrupted will interrupt a group of other signals
+ */
+export const group = (signals: Signal[]): Signal => _.concat(signals as any) as any;
 
 /**
  * Check whether the signal has been aborted

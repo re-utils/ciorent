@@ -5,34 +5,71 @@ import { Mutex, Semaphore } from 'async-mutex';
 import mutexify from 'mutexify/promise.js';
 
 import { bench, do_not_optimize, run, summary } from 'mitata';
+import { Sema } from 'async-sema';
 
 const task = async () => {
   await 0;
   do_not_optimize(Math.random());
-  await 0;
-  do_not_optimize(Math.random());
 };
 
-const setup = (label: string, limited: () => Promise<void>) => {
+const setup = (label: string, limited: () => Promise<any>) => {
   bench(label, Function('f', `return async () => { await Promise.all([${
     'f(),'.repeat(200)
   }]); }`)(limited)).gc('inner');
 };
 
-const setupCases = (permit: number) => {
+const setupSemaphoreCases = (permit: number) => {
   setup(`permit ${permit} - limit-concur`, limitConcur(permit, task));
   setup(`permit ${permit} - p-limit`, limitFunction(task, { concurrency: permit }));
-  setup(`permit ${permit} - ciorent (semaphore)`, semaphore.permits(task, permit));
+
+  {
+    const sem = semaphore.init(permit, 200 - permit);
+    setup(`permit ${permit} - ciorent (semaphore)`, async () => {
+      await semaphore.acquire(sem);
+      await task();
+      semaphore.release(sem);
+    });
+  }
 
   {
     const sem = new Semaphore(permit);
     setup(`permit ${permit} - async-mutex (semaphore)`, () => sem.runExclusive(task));
   }
+
+  {
+    const sem = new Sema(permit);
+    setup(`permit ${permit} - async-sema`, async () => {
+      await sem.acquire();
+      try {
+        return await task();
+      } finally {
+        sem.release();
+      }
+    });
+  }
+
+  {
+    const sem = new Sema(permit, {
+      capacity: 200 - permit
+    });
+    setup(`permit ${permit} - async-sema (pre-allocated)`, async () => {
+      await sem.acquire();
+      try {
+        return await task();
+      } finally {
+        sem.release();
+      }
+    });
+  }
 }
 
 summary(() => {
-  setupCases(1);
-  setup('permit 1 - ciorent (mutex)', mutex.permits(task));
+  setupSemaphoreCases(1);
+
+  {
+    const mu = mutex.init();
+    setup('permit 1 - ciorent (mutex)', () => mutex.run(mu, task));
+  }
 
   {
     const mu = new Mutex();
@@ -52,9 +89,9 @@ summary(() => {
   }
 });
 
-for (const permit of [3, 5, 15, 50])
+for (let permit = 2; permit < 128; permit <<= 1)
   summary(() => {
-    setupCases(permit);
+    setupSemaphoreCases(permit);
   });
 
 run();
