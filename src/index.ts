@@ -1,4 +1,3 @@
-import { rateLimit } from 'ciorent';
 import { loadResolve, loadResolvers, promiseResolver } from './utils.js';
 
 /**
