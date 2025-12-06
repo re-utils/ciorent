@@ -58,3 +58,10 @@ export const timeout = (ms: number): Signal => {
   abortAfter(ms, sig);
   return sig;
 };
+
+/**
+ * Attach a signal to a `DisposableStack` or `AsyncDisposableStack`
+ */
+export const adopt = (t: Signal, stack: DisposableStack | AsyncDisposableStack): void => {
+  stack.adopt(t, abort);
+}
