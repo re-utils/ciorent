@@ -44,11 +44,11 @@ export const isThenable = <T>(p: unknown): p is PromiseLike<T> =>
   // @ts-ignore
   typeof p.then === 'function';
 
-const resolvePromise = async (p: any) => {
+const resolvePromise = async (res: any, rej: any, p: any) => {
   try {
-    loadedResolve(await p);
+    res(await p);
   } catch (e) {
-    loadedReject(e);
+    rej(e);
   }
 };
 /**
@@ -59,7 +59,7 @@ const resolvePromise = async (p: any) => {
 export const timeout = <T>(p: Promise<T>, ms: number): Promise<T | void> => {
   const promise = new Promise<void>(loadResolvers);
   setTimeout(loadedResolve, ms);
-  resolvePromise(p);
+  resolvePromise(loadedResolve, loadedReject, p);
   return promise;
 };
 
