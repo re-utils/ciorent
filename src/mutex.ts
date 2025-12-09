@@ -2,8 +2,8 @@ import { nextTick } from './index.js';
 import {
   chainLock,
   type Extend,
+  loadedResolve,
   loadResolve,
-  promiseResolver,
 } from './utils.js';
 
 /**
@@ -23,7 +23,7 @@ export const acquire = async (mu: Extend<Mutex>): Promise<() => void> => {
   const currentLock = mu[0];
   mu[0] = new Promise<void>(loadResolve);
 
-  const release = promiseResolver[0];
+  const release = loadedResolve;
   await currentLock;
   return release;
 };

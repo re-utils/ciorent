@@ -1,4 +1,4 @@
-import { loadResolve, loadResolvers, promiseResolver } from './utils.js';
+import { loadedReject, loadedResolve, loadResolve, loadResolvers } from './utils.js';
 
 /**
  * Continue the execution on next event loop cycle.
@@ -44,11 +44,11 @@ export const isThenable = <T>(p: unknown): p is PromiseLike<T> =>
   // @ts-ignore
   typeof p.then === 'function';
 
-const resolvePromise = async (resolve: any, reject: any, p: any) => {
+const resolvePromise = async (p: any) => {
   try {
-    resolve(await p);
+    loadedResolve(await p);
   } catch (e) {
-    reject(e);
+    loadedReject(e);
   }
 };
 /**
@@ -58,8 +58,8 @@ const resolvePromise = async (resolve: any, reject: any, p: any) => {
  */
 export const timeout = <T>(p: Promise<T>, ms: number): Promise<T | void> => {
   const promise = new Promise<void>(loadResolvers);
-  setTimeout(promiseResolver[0], ms);
-  resolvePromise(promiseResolver[0], promiseResolver[1], p);
+  setTimeout(loadedResolve, ms);
+  resolvePromise(p);
   return promise;
 };
 
@@ -72,7 +72,7 @@ export const sleep: (ms: number) => Promise<void> =
   globalThis.process?.getBuiltinModule?.('timers/promises').setTimeout ??
   ((ms) => {
     const promise = new Promise(loadResolve);
-    setTimeout(promiseResolver[0], ms);
+    setTimeout(loadedResolve, ms);
     return promise;
   });
 

@@ -1,4 +1,4 @@
-import { type Extend, loadResolve, promiseResolver } from './utils.js';
+import { type Extend, loadedResolve, loadResolve } from './utils.js';
 
 type QueueItem = () => void;
 type Queue = [(QueueItem | null)[], len: number, head: number, tail: number];
@@ -58,7 +58,7 @@ export const init = (permits: number, capacity: number): Semaphore => [
 export const acquire = (sem: Extend<Semaphore>): Promise<void> | void => {
   if (--sem[4] < 0) {
     const promise = new Promise<void>(loadResolve);
-    push(sem, promiseResolver[0]);
+    push(sem, loadedResolve);
     return promise;
   }
 };

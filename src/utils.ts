@@ -1,20 +1,18 @@
 export type Extend<T extends any[]> = [...T, ...any[]];
 
-export const promiseResolver: [
-  resolve: (res?: any) => void,
-  reject: (reason?: any) => void,
-] = [null!, null!];
+export let loadedResolve: (res?: any) => void;
+export let loadedReject: (reason?: any) => void;
 
 export const loadResolvers = (
   res: (value?: any) => void,
   rej: (reason?: any) => void,
 ): void => {
-  promiseResolver[0] = res;
-  promiseResolver[1] = rej;
+  loadedResolve = res;
+  loadedReject = rej;
 };
 
 export const loadResolve = (res: (value?: any) => void): void => {
-  promiseResolver[0] = res;
+  loadedResolve = res;
 };
 
 /**
