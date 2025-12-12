@@ -1,4 +1,9 @@
-import { loadedReject, loadedResolve, loadResolve, loadResolvers } from './utils.js';
+import {
+  loadedReject,
+  loadedResolve,
+  loadResolve,
+  loadResolvers,
+} from './utils.js';
 
 /**
  * Continue the execution on next event loop cycle.
@@ -44,13 +49,6 @@ export const isThenable = <T>(p: unknown): p is PromiseLike<T> =>
   // @ts-ignore
   typeof p.then === 'function';
 
-const resolvePromise = async (res: any, rej: any, p: any) => {
-  try {
-    res(await p);
-  } catch (e) {
-    rej(e);
-  }
-};
 /**
  * Timeout a promise
  * @param p
@@ -59,7 +57,7 @@ const resolvePromise = async (res: any, rej: any, p: any) => {
 export const timeout = <T>(p: Promise<T>, ms: number): Promise<T | void> => {
   const promise = new Promise<void>(loadResolvers);
   setTimeout(loadedResolve, ms);
-  resolvePromise(loadedResolve, loadedReject, p);
+  p.then(loadedResolve, loadedReject);
   return promise;
 };
 

@@ -3,9 +3,10 @@ import limitConcur from 'limit-concur';
 import { limitFunction } from 'p-limit';
 import { Mutex, Semaphore } from 'async-mutex';
 import mutexify from 'mutexify/promise.js';
+import { Sema } from 'async-sema';
 
 import { bench, do_not_optimize, run, summary } from 'mitata';
-import { Sema } from 'async-sema';
+
 
 const task = async () => {
   await 0;

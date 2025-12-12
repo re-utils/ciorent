@@ -14,21 +14,3 @@ export const loadResolvers = (
 export const loadResolve = (res: (value?: any) => void): void => {
   loadedResolve = res;
 };
-
-/**
- * Unswallow promise error.
- */
-export const unswallow = async (p: Promise<any>): Promise<any> => p;
-
-export const chainLock = async (
-  lock: Promise<void>,
-  fn: any,
-  ...args: any[]
-): Promise<any> => {
-  try {
-    await lock;
-  } catch {
-    unswallow(lock);
-  }
-  return fn(...args);
-};

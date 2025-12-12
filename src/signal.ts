@@ -22,7 +22,8 @@ const _ = [false];
 /**
  * Create a signal that when interrupted will interrupt a group of other signals
  */
-export const group = (signals: Signal[]): Signal => _.concat(signals as any) as any;
+export const group = (signals: Signal[]): Signal =>
+  _.concat(signals as any) as any;
 
 /**
  * Check whether the signal has been aborted
@@ -62,6 +63,9 @@ export const timeout = (ms: number): Signal => {
 /**
  * Attach a signal to a `DisposableStack` or `AsyncDisposableStack`
  */
-export const adopt = (t: Signal, stack: DisposableStack | AsyncDisposableStack): void => {
+export const adopt = (
+  t: Signal,
+  stack: DisposableStack | AsyncDisposableStack,
+): void => {
   stack.adopt(t, abort);
-}
+};
