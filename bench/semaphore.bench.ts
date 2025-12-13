@@ -1,4 +1,4 @@
-import { semaphore, mutex } from 'ciorent';
+import { semaphore, mutex, nextTick } from 'ciorent';
 import limitConcur from 'limit-concur';
 import { limitFunction } from 'p-limit';
 import { Mutex, Semaphore } from 'async-mutex';
@@ -11,17 +11,34 @@ import { bench, do_not_optimize, run, summary } from 'mitata';
 const task = async () => {
   await 0;
   do_not_optimize(Math.random());
+  await 0;
+  do_not_optimize(Math.random());
 };
 
 const setup = (label: string, limited: () => Promise<any>) => {
-  bench(label, Function('f', `return async () => { await Promise.all([${
+  bench(label, Function('f', `return () => Promise.all([${
     'f(),'.repeat(200)
-  }]); }`)(limited)).gc('inner');
+  }])`)(limited)).gc('inner');
 };
 
 const setupSemaphoreCases = (permit: number) => {
   setup(`permit ${permit} - limit-concur`, limitConcur(permit, task));
   setup(`permit ${permit} - p-limit`, limitFunction(task, { concurrency: permit }));
+
+  {
+    let permits = permit;
+    setup(`permit ${permit} - polling`, async () => {
+      while (permits <= 0)
+        await nextTick;
+
+      permits--;
+      try {
+        await task();
+      } finally {
+        permits++;
+      }
+    })
+  }
 
   {
     const sem = semaphore.init(permit, 200 - permit);
