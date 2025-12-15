@@ -27,7 +27,7 @@ const setupSemaphoreCases = (permit: number) => {
 
   {
     let permits = permit;
-    setup(`permit ${permit} - polling`, async () => {
+    setup(`permit ${permit} - polling (semaphore)`, async () => {
       while (permits <= 0)
         await nextTick;
 
@@ -86,6 +86,21 @@ const setupSemaphoreCases = (permit: number) => {
 
 summary(() => {
   setupSemaphoreCases(1);
+
+  {
+    let locked = false;
+    setup(`permit ${1} - polling (mutex)`, async () => {
+      while (locked)
+        await nextTick;
+
+      locked = true;
+      try {
+        await task();
+      } finally {
+        locked = false;
+      }
+    })
+  }
 
   {
     const mu = mutex.init();
