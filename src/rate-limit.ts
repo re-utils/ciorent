@@ -1,10 +1,10 @@
 /**
- * Describe a rate limiter
+ * Describe a rate limiter.
  */
 export type Limiter = (limit: number, ms: number) => () => boolean;
 
 /**
- * Fixed window strategy
+ * Fixed window strategy.
  * @param limit
  * @param ms
  */
@@ -23,7 +23,7 @@ export const fixedWindow: Limiter = (limit, ms) => {
 };
 
 /**
- * Sliding window strategy
+ * Sliding window strategy.
  * @param limit
  * @param ms
  */
@@ -43,7 +43,7 @@ export const slidingWindow: Limiter = (limit, ms) => {
 };
 
 /**
- * Token bucket strategy
+ * Token bucket strategy.
  * @param limit
  * @param ms
  */

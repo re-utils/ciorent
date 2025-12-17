@@ -38,7 +38,7 @@ export const state = async (p: Promise<any>): Promise<0 | 1 | 2> => {
 };
 
 /**
- * Check whether a value is awaitable
+ * Check whether a value is awaitable.
  * @param p
  * @returns
  */
@@ -50,7 +50,7 @@ export const isThenable = <T>(p: unknown): p is PromiseLike<T> =>
   typeof p.then === 'function';
 
 /**
- * Timeout a promise
+ * Timeout a promise.
  * @param p
  * @param ms
  */
@@ -90,6 +90,7 @@ export const sleepSync: (ms: number) => void =
     Atomics.wait(sharedBuf, 0, 0, ms);
   });
 
+export * as deferred from './deferred.js';
 export * as mutex from './mutex.js';
 export * as limit from './rate-limit.js';
 export * as semaphore from './semaphore.js';

@@ -1,15 +1,15 @@
 /**
- * Describe a signal
+ * Describe a signal.
  */
 export type Signal = [interrupted: boolean, ...parents: Signal[]];
 
 /**
- * Create a signal
+ * Create a signal.
  */
 export const init = (): Signal => [false];
 
 /**
- * Create a signal that aborts when any of the input signals abort
+ * Create a signal that aborts when any of the input signals abort.
  * @param sigs
  */
 export const any = (signals: Signal[]): Signal => {
@@ -20,19 +20,19 @@ export const any = (signals: Signal[]): Signal => {
 
 const _ = [false];
 /**
- * Create a signal that when interrupted will interrupt a group of other signals
+ * Create a signal that when interrupted will interrupt a group of other signals.
  */
 export const group = (signals: Signal[]): Signal =>
   _.concat(signals as any) as any;
 
 /**
- * Check whether the signal has been aborted
+ * Check whether the signal has been aborted.
  * @param t
  */
 export const aborted = (t: Signal): boolean => t[0];
 
 /**
- * Abort a signal
+ * Abort a signal.
  * @param t
  */
 export const abort = (t: Signal): void => {
@@ -43,7 +43,7 @@ export const abort = (t: Signal): void => {
 };
 
 /**
- * Abort a signal after a duration
+ * Abort a signal after a duration.
  * @param t
  */
 export const abortAfter = (ms: number, t: Signal): void => {
@@ -51,7 +51,7 @@ export const abortAfter = (ms: number, t: Signal): void => {
 };
 
 /**
- * Create a signal that aborts after ms
+ * Create a signal that aborts after ms.
  * @param ms
  */
 export const timeout = (ms: number): Signal => {
