@@ -9,12 +9,6 @@ const push = (qu: Extend<Queue>, item: QueueItem): void => {
   qu[0][tail] = item;
 };
 
-/**
- * Check whether the semaphore queue is full.
- */
-export const full = (qu: Extend<Queue>): boolean =>
-  qu[2] === qu[3] && qu[0][qu[2]] !== null;
-
 const pop = (qu: Extend<Queue>): QueueItem => {
   const head = qu[2];
   qu[2] = head + 1 === qu[1] ? 0 : head + 1;
@@ -25,6 +19,12 @@ const pop = (qu: Extend<Queue>): QueueItem => {
 };
 
 export type Semaphore = [...Queue, remain: number];
+
+/**
+ * Check whether the semaphore queue is full.
+ */
+export const full = (qu: Extend<Semaphore>): boolean =>
+  qu[0].length + qu[4] <= 0;
 
 /**
  * Create a semaphore.
@@ -72,3 +72,29 @@ export const acquire = (sem: Extend<Semaphore>): Promise<void> | void => {
 export const release = (sem: Extend<Semaphore>): void => {
   sem[4]++ < 0 && pop(sem)();
 };
+
+/**
+ * @param task Task to limit
+ * @param sem Target semaphore
+ * @throws {Error} when `sem` internal queue is full
+ * @returns The limited function
+ */
+export const limit = <Fn extends (...args: any[]) => Promise<any>>(
+  task: Fn,
+  sem: Extend<Semaphore>,
+): Fn =>
+  (async (...args: any[]) => {
+    if (full(sem)) throw new Error('Semaphore internal queue is full');
+
+    if (--sem[4] < 0) {
+      const promise = new Promise<void>(loadResolve);
+      push(sem, loadedResolve);
+      await promise;
+    }
+
+    try {
+      return await task(...args);
+    } finally {
+      release(sem);
+    }
+  }) as any;

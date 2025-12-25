@@ -95,3 +95,4 @@ export * as mutex from './mutex.js';
 export * as limit from './rate-limit.js';
 export * as semaphore from './semaphore.js';
 export * as signal from './signal.js';
+export * as iters from './iterators.js';
