@@ -1,6 +1,6 @@
 import { type Extend, loadedResolve, loadResolve } from './utils.js';
 
-type QueueItem = () => void;
+type QueueItem = (value: true) => void;
 type Queue = [(QueueItem | null)[], len: number, head: number, tail: number];
 
 const push = (qu: Extend<Queue>, item: QueueItem): void => {
@@ -19,12 +19,6 @@ const pop = (qu: Extend<Queue>): QueueItem => {
 };
 
 export type Semaphore = [...Queue, remain: number];
-
-/**
- * Check whether the semaphore queue is full.
- */
-export const full = (qu: Extend<Semaphore>): boolean =>
-  qu[0].length + qu[4] <= 0;
 
 /**
  * Create a semaphore.
@@ -46,21 +40,27 @@ export const init = (permits: number, capacity: number): Semaphore => [
  *
  * @example
  *
- * if (semaphore.full(sem)) {
+ * if (!await semaphore.acquire(sem)) {
  *   // Internal queue is full
  * }
- *
- * await semaphore.acquire(sem);
  *
  * // Do something and then release the permit.
  * semaphore.release(sem);
  */
-export const acquire = (sem: Extend<Semaphore>): Promise<void> | void => {
+export const acquire = (sem: Extend<Semaphore>): Promise<true> | boolean => {
   if (--sem[4] < 0) {
-    const promise = new Promise<void>(loadResolve);
+    // queue is full
+    if (sem[0].length + sem[4] < 0) {
+      sem[4]++;
+      return false;
+    }
+
+    const promise = new Promise<true>(loadResolve);
     push(sem, loadedResolve);
     return promise;
   }
+
+  return true;
 };
 
 /**
@@ -70,13 +70,13 @@ export const acquire = (sem: Extend<Semaphore>): Promise<void> | void => {
  * semaphore.release(sem);
  */
 export const release = (sem: Extend<Semaphore>): void => {
-  sem[4]++ < 0 && pop(sem)();
+  sem[4]++ < 0 && pop(sem)(true);
 };
 
 /**
  * @param task Task to limit
  * @param sem Target semaphore
- * @throws {Error} when `sem` internal queue is full
+ * @throws When `sem` internal queue is full
  * @returns The limited function
  */
 export const limit = <Fn extends (...args: any[]) => Promise<any>>(
@@ -84,10 +84,14 @@ export const limit = <Fn extends (...args: any[]) => Promise<any>>(
   sem: Extend<Semaphore>,
 ): Fn =>
   (async (...args: any[]) => {
-    if (full(sem)) throw new Error('Semaphore internal queue is full');
-
     if (--sem[4] < 0) {
-      const promise = new Promise<void>(loadResolve);
+      // queue is full
+      if (sem[0].length + sem[4] < 0) {
+        sem[4]++;
+        return Promise.reject(new Error('Semaphore internal queue is full'));
+      }
+
+      const promise = new Promise<true>(loadResolve);
       push(sem, loadedResolve);
       await promise;
     }

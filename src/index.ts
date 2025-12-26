@@ -90,9 +90,52 @@ export const sleepSync: (ms: number) => void =
     Atomics.wait(sharedBuf, 0, 0, ms);
   });
 
+const resolveFind = async (resolve: typeof loadedResolve, findFn: (value: any) => boolean | Promise<boolean>, promise: Promise<any>, counter: [number]) => {
+  try {
+    if (await promise.then(findFn))
+      return resolve(promise);
+
+    counter[0]--;
+    return;
+  } catch {
+    if (--counter[0] === 0) resolve();
+    return promise;
+  }
+}
+
+/**
+ * Async `Array.prototype.map`. Mutates the original array.
+ *
+ * @example
+ * await Promise.all(
+ *   map([task1(), task2(), task3()], (taskResult) => taskResult.debug)
+ * );
+ *
+ * // Map without mutating the original array
+ * await Promise.all(
+ *   map(taskPromises.slice(), (taskResult) => taskResult.debug)
+ * );
+ */
+export const map = <T, R>(arr: Promise<T>[], mapFn: (value: T) => R | Promise<R>): Promise<R>[] => {
+  for (let i = 0; i < arr.length; i++)
+    arr[i] = arr[i].then(mapFn) as any;
+  return arr as any;
+}
+
+/**
+ * Async `Array.prototype.find`.
+ */
+export const find = <T>(arr: Promise<T>[], findFn: (value: T) => boolean | Promise<boolean>): Promise<T | undefined> => {
+  const promise = new Promise(loadResolve);
+  // more lightweight than a Promise.allSettled
+  let counter: [number] = [arr.length];
+  for (let i = 0; i < arr.length; i++)
+    resolveFind(loadedResolve, findFn, arr[i], counter);
+  return promise;
+}
+
 export * as deferred from './deferred.js';
 export * as mutex from './mutex.js';
 export * as limit from './rate-limit.js';
 export * as semaphore from './semaphore.js';
 export * as signal from './signal.js';
-export * as iters from './iterators.js';
