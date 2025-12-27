@@ -74,31 +74,33 @@ export const release = (sem: Extend<Semaphore>): void => {
 };
 
 /**
- * @param task Task to limit
- * @param sem Target semaphore
+ * Run a task with concurrency control.
+ *
+ * @param sem Semaphore to acquire from
+ * @param task Task to run
  * @throws When `sem` internal queue is full
  * @returns The limited function
  */
-export const limit = <Fn extends (...args: any[]) => Promise<any>>(
-  task: Fn,
+export const run = async <Args extends any[], R>(
   sem: Extend<Semaphore>,
-): Fn =>
-  (async (...args: any[]) => {
-    if (--sem[4] < 0) {
-      // queue is full
-      if (sem[0].length + sem[4] < 0) {
-        sem[4]++;
-        return Promise.reject(new Error('Semaphore internal queue is full'));
-      }
-
-      const promise = new Promise<true>(loadResolve);
-      push(sem, loadedResolve);
-      await promise;
+  task: (...args: Args) => Promise<R>,
+  ...args: Args
+): Promise<R> => {
+  if (--sem[4] < 0) {
+    // queue is full
+    if (sem[0].length + sem[4] < 0) {
+      sem[4]++;
+      return Promise.reject(new Error('Semaphore internal queue is full'));
     }
 
-    try {
-      return await task(...args);
-    } finally {
-      release(sem);
-    }
-  }) as any;
+    const promise = new Promise<true>(loadResolve);
+    push(sem, loadedResolve);
+    await promise;
+  }
+
+  try {
+    return await task(...args);
+  } finally {
+    release(sem);
+  }
+}
