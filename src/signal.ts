@@ -63,7 +63,7 @@ export const timeout = (ms: number): Signal => {
 /**
  * Attach a signal to a `DisposableStack` or `AsyncDisposableStack`
  */
-export const adopt = (
+export const attach = (
   t: Signal,
   stack: DisposableStack | AsyncDisposableStack,
 ): void => {
