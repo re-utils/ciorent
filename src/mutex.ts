@@ -34,6 +34,7 @@ const chainLock = async (
     return fn(...args);
   }
 };
+
 /**
  * Automatically acquire and run a task.
  */

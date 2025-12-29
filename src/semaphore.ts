@@ -1,24 +1,7 @@
 import { type Extend, loadedResolve, loadResolve } from './utils.js';
 
 type QueueItem = (value: true) => void;
-type Queue = [(QueueItem | null)[], len: number, head: number, tail: number];
-
-const push = (qu: Extend<Queue>, item: QueueItem): void => {
-  const tail = qu[3];
-  qu[3] = tail + 1 === qu[1] ? 0 : tail + 1;
-  qu[0][tail] = item;
-};
-
-const pop = (qu: Extend<Queue>): QueueItem => {
-  const head = qu[2];
-  qu[2] = head + 1 === qu[1] ? 0 : head + 1;
-
-  const val = qu[0][head];
-  qu[0][head] = null;
-  return val!;
-};
-
-export type Semaphore = [...Queue, remain: number];
+export type Semaphore = [(QueueItem | null)[], len: number, head: number, tail: number, remain: number];
 
 /**
  * Create a semaphore.
@@ -56,7 +39,12 @@ export const acquire = (sem: Extend<Semaphore>): Promise<true> | boolean => {
     }
 
     const promise = new Promise<true>(loadResolve);
-    push(sem, loadedResolve);
+
+    // Push to queue
+    const tail = sem[3];
+    sem[3] = tail + 1 === sem[1] ? 0 : tail + 1;
+    sem[0][tail] = loadedResolve;
+
     return promise;
   }
 
@@ -70,7 +58,14 @@ export const acquire = (sem: Extend<Semaphore>): Promise<true> | boolean => {
  * semaphore.release(sem);
  */
 export const release = (sem: Extend<Semaphore>): void => {
-  sem[4]++ < 0 && pop(sem)(true);
+  if (sem[4]++ < 0) {
+    // Pop from queue
+    const head = sem[2];
+    sem[2] = head + 1 === sem[1] ? 0 : head + 1;
+
+    sem[0][head]!(true);
+    sem[0][head] = null;
+  }
 };
 
 /**
@@ -94,7 +89,12 @@ export const run = async <Args extends any[], R>(
     }
 
     const promise = new Promise<true>(loadResolve);
-    push(sem, loadedResolve);
+
+    // Push to queue
+    const tail = sem[3];
+    sem[3] = tail + 1 === sem[1] ? 0 : tail + 1;
+    sem[0][tail] = loadedResolve;
+
     await promise;
   }
 

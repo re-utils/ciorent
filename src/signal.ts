@@ -61,7 +61,7 @@ export const timeout = (ms: number): Signal => {
 };
 
 /**
- * Attach a signal to a `DisposableStack` or `AsyncDisposableStack`
+ * Attach a signal to a `DisposableStack` or `AsyncDisposableStack`.
  */
 export const attach = (
   t: Signal,
