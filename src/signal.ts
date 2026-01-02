@@ -18,12 +18,14 @@ export const any = (signals: Signal[]): Signal => {
   return sig;
 };
 
-const _ = [false];
 /**
- * Create a signal that when interrupted will interrupt a group of other signals.
+ * Create a child signal that aborts when the parent signal aborts.
  */
-export const group = (signals: Signal[]): Signal =>
-  _.concat(signals as any) as any;
+export const fork = (signal: Signal): Signal => {
+  const sig: Signal = [false];
+  signal.push(sig);
+  return signal;
+};
 
 /**
  * Check whether the signal has been aborted.
@@ -43,29 +45,22 @@ export const abort = (t: Signal): void => {
 };
 
 /**
- * Abort a signal after a duration.
- * @param t
- */
-export const abortAfter = (ms: number, t: Signal): void => {
-  setTimeout(() => abort(t), ms);
-};
-
-/**
  * Create a signal that aborts after ms.
  * @param ms
  */
 export const timeout = (ms: number): Signal => {
   const sig: Signal = [false];
-  abortAfter(ms, sig);
+  setTimeout(abort, ms, sig);
   return sig;
 };
 
 /**
- * Attach a signal to a `DisposableStack` or `AsyncDisposableStack`.
+ * Create and attach a signal to a `DisposableStack` or `AsyncDisposableStack`.
  */
-export const attach = (
-  t: Signal,
+export const bind = (
   stack: DisposableStack | AsyncDisposableStack,
-): void => {
-  stack.adopt(t, abort);
+): Signal => {
+  const sig: Signal = [false];
+  stack.adopt(sig, abort);
+  return sig;
 };

@@ -1,7 +1,13 @@
 import { type Extend, loadedResolve, loadResolve } from './utils.js';
 
 type QueueItem = (value: true) => void;
-export type Semaphore = [(QueueItem | null)[], len: number, head: number, tail: number, remain: number];
+export type Semaphore = [
+  (QueueItem | null)[],
+  len: number,
+  head: number,
+  tail: number,
+  remain: number,
+];
 
 /**
  * Create a semaphore.

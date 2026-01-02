@@ -30,7 +30,8 @@ const resolveFind = async (
   try {
     const result = await promise;
     const findResult = fn(result);
-    if (findResult instanceof Promise ? await findResult : findResult) return state[1](result);
+    if (findResult instanceof Promise ? await findResult : findResult)
+      return state[1](result);
 
     if (--state[0] === 0) state[1]();
   } catch {
@@ -63,7 +64,8 @@ const resolveSome = async (
 ) => {
   try {
     const result = fn(await promise);
-    if (typeof result === 'boolean' ? result : await result) return state[1](true);
+    if (typeof result === 'boolean' ? result : await result)
+      return state[1](true);
 
     if (--state[0] === 0) state[1](false);
   } catch {
@@ -96,7 +98,8 @@ const resolveEvery = async (
 ) => {
   try {
     const result = fn(await promise);
-    if (typeof result === 'boolean' ? !result : !await result) return state[1](false);
+    if (typeof result === 'boolean' ? !result : !(await result))
+      return state[1](false);
 
     if (--state[0] === 0) state[1](true);
   } catch {
